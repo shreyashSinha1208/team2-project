@@ -28,11 +28,11 @@ ChartJS.register(
   LineElement
 );
 
-import TemplateSidebar from "@/components/dashboard/TemplateSidebar";
-import DataInput       from "@/components/dashboard/DataInput";
-import ChartRenderer   from "@/components/dashboard/ChartRenderer";
-import ZoomControls    from "@/components/dashboard/ZoomControls";
-import FooterToolbar   from "@/components/FooterToolbar";
+import TemplateSidebar from "@/Components/dashboard/Sidebar";
+import DataInput       from "@/Components/dashboard/DataInput";
+import ChartRenderer   from "@/Components/dashboard/ChartRenderer";
+import ZoomControls    from "@/Components/dashboard/ZoomControls";
+import FooterToolbar   from "@/Components/FooterToolbar";
 
 export default function DashboardPage() {
   const [template, setTemplate] = useState<string>("Hierarchy");
