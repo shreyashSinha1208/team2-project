@@ -22,7 +22,7 @@ export default function ListView({ items }: Props) {
               key={i}
               className="font-bold text-lg mb-2 mt-4 text-black-700 border-b-2 border-black-400 pb-1"
             >
-              {trimmedLine}
+              {trimmedLine.substring(8)} {/* Remove "Heading" prefix */}
             </h3>
           );
         } else {
