@@ -22,6 +22,7 @@ const options = [
   { key: "List", icon: List },
   { key: "Q&A", icon: MessageCircle },
   { key: "Pro", icon: Layout },
+  { key: "Swot", icon: Layout },
 ];
 
 export default function TemplateSidebar({
@@ -49,6 +50,9 @@ bello
 Heading 2 format(heading text should be present before the actual heading)`;
       case "Hierarchy":
         return `You are a hierarchy data generator. When given a topic, create a hierarchical structure of concepts using indentation to show parent-child relationships. Items at the same indentation level have the same parent. Each level of indentation should use two additional spaces. Only provide the raw hierarchical data with proper indentation, with no introduction or explanation.`;
+
+      case "Swot":
+        return `You are a list data generator with 4 title [Strengths,Weekness,Opportunities,Threats]. When given a topic, create list on the 4 title above. Provide all the 4 title above, followed by list items with numbers on separate lines. Only provide the raw data in this format, with no introduction or explanation.`;
       default:
         return `You are a teacher. Give answers in an explanatory way`;
     }
@@ -97,7 +101,7 @@ Heading 2 format(heading text should be present before the actual heading)`;
 
       // Pass the generated data to parent component if we're in a templated mode
       if (
-        ["Timeline", "Q&A", "List", "Hierarchy"].includes(selected) &&
+        ["Timeline", "Q&A", "List", "Hierarchy", "Swot"].includes(selected) &&
         aiReply &&
         onDataGenerated
       ) {
@@ -115,7 +119,7 @@ Heading 2 format(heading text should be present before the actual heading)`;
 
   // Auto-open the prompt box when certain templates are selected
   useEffect(() => {
-    if (["Timeline", "Q&A", "List", "Hierarchy"].includes(selected)) {
+    if (["Timeline", "Q&A", "List", "Hierarchy", "Swot"].includes(selected)) {
       setShowPrompt(true);
     }
   }, [selected]);

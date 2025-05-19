@@ -15,6 +15,7 @@ const QnAView = dynamic(() => import("../charts/QnAView"), { ssr: false });
 const TimelineGraph = dynamic(() => import("../charts/TimelineGraph"), {
   ssr: false,
 });
+const SwotView = dynamic(() => import("../charts/SwotView"), {ssr: false,});
 // ...add others as needed
 
 import { TreeNode, ChartJsData } from "../types";
@@ -96,6 +97,9 @@ export default function ChartRenderer({ template, rawData }: Props) {
 
     case "Timeline":
       return <TimelineGraph data={listItems.join("\n")} />;
+
+    case "Swot":
+      return <SwotView items={listItems} />;
 
     default:
       return <p className="text-center text-gray-500">Select a template</p>;
