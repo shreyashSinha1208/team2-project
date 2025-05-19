@@ -41,26 +41,29 @@ export default function TemplateSidebar({ selected, onSelect }: Props) {
     setError("");
 
     try {
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_GROQ_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "llama3-8b-8192",
-          messages: [
-            {
-              role: "system",
-              content: systemPrompt,
-            },
-            {
-              role: "user",
-              content: prompt,
-            },
-          ],
-        }),
-      });
+      const res = await fetch(
+        "https://api.groq.com/openai/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_GROQ_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: "llama3-8b-8192",
+            messages: [
+              {
+                role: "system",
+                content: systemPrompt,
+              },
+              {
+                role: "user",
+                content: prompt,
+              },
+            ],
+          }),
+        }
+      );
 
       if (!res.ok) {
         const errorText = await res.text();
@@ -72,27 +75,30 @@ export default function TemplateSidebar({ selected, onSelect }: Props) {
       setResponse(aiReply || "No response from AI.");
     } catch (err: any) {
       console.error(err);
-      setError("Error contacting AI. Please check your API key or try again later.");
+      setError(
+        "Error contacting AI. Please check your API key or try again later."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <aside className="w-64 flex flex-col bg-yellow-400 border-r border-black h-screen">
+    <aside className="w-64 flex flex-col bg-yellow-400 border-r border-black h-screen overflow-y-auto">
       {/* Top nav */}
       <div className="h-12 flex items-center justify-between px-4 bg-blue-900">
         <h2 className="text-lg font-bold text-white underline">Templates</h2>
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setShowPrompt(!showPrompt)}
-            className="text-white text-sm underline focus:outline-none"
+            className="text-white text-sm underline hover:text-yellow-200 transition"
           >
             Use AI<sup>✨</sup>
           </button>
-          <span className="text-white text-sm flex items-center">
-            Customize<ChevronDown size={16} className="ml-1" />
-          </span>
+          {/* <span className="text-white text-sm flex items-center cursor-pointer hover:text-yellow-200 transition">
+            Customize
+            <ChevronDown size={16} className="ml-1" />
+          </span> */}
         </div>
       </div>
 
@@ -100,16 +106,16 @@ export default function TemplateSidebar({ selected, onSelect }: Props) {
 
       {/* AI Prompt Box */}
       {showPrompt && (
-        <div className="px-4 py-2 space-y-2">
+        <div className="px-4 py-3 space-y-2">
           <textarea
-            className="w-full p-2 border-2 border-black rounded-lg"
+            className="w-full p-2 border-2 border-black rounded-lg bg-white text-black focus:outline-none focus:ring-2 focus:ring-blue-700"
             placeholder="Enter your prompt..."
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
           />
           <button
             onClick={handleAIClick}
-            className={`bg-blue-900 text-white px-3 py-1 rounded border border-black ${
+            className={`w-full bg-blue-900 text-white px-3 py-2 rounded-lg border border-black font-semibold hover:bg-blue-800 transition ${
               loading ? "opacity-50 cursor-not-allowed" : ""
             }`}
             disabled={loading}
@@ -118,13 +124,13 @@ export default function TemplateSidebar({ selected, onSelect }: Props) {
           </button>
 
           {error && (
-            <div className="p-2 bg-red-100 border border-red-500 rounded text-sm text-red-700">
+            <div className="p-2 bg-red-100 border border-red-500 rounded-lg text-sm text-red-700">
               {error}
             </div>
           )}
 
           {response && (
-            <div className="p-2 bg-white border border-black rounded text-sm">
+            <div className="p-2 bg-white border border-black rounded-lg text-sm text-black">
               <strong>AI:</strong> {response}
             </div>
           )}
@@ -132,10 +138,13 @@ export default function TemplateSidebar({ selected, onSelect }: Props) {
       )}
 
       {/* Dropdown */}
-      <div className="px-4 py-2">
+      <div className="px-4 pt-4 pb-6">
+        <label className="text-sm font-semibold mb-1 block text-black">
+          Filter by Category
+        </label>
         <div className="relative">
           <select
-            className="w-full p-2 rounded-lg border-2 border-black bg-white text-black appearance-none"
+            className="w-full p-2 rounded-lg border-2 border-black bg-white text-black appearance-none focus:outline-none focus:ring-2 focus:ring-blue-700"
             value={selected}
             onChange={(e) => onSelect(e.target.value)}
           >
@@ -150,28 +159,36 @@ export default function TemplateSidebar({ selected, onSelect }: Props) {
           />
         </div>
       </div>
+      {/* Template options */}
 
       {/* Icon buttons */}
-      <div className="px-4 grid grid-cols-5 gap-2">
-        {options.map(({ key, icon: Icon }) => (
-          <button
-            key={key}
-            onClick={() => onSelect(key)}
-            className={`flex flex-col items-center justify-center p-2 rounded-lg
-              ${selected === key ? "bg-blue-900 text-white" : "bg-yellow-200 text-black"}
-              border-2 border-black hover:bg-yellow-300`}
-          >
-            <Icon size={24} />
-            <span className="mt-1 text-xs">{key}</span>
-          </button>
-        ))}
+      {/* Icon buttons - horizontal scroll */}
+      <div className="px-4 py-2 mx-2 overflow-x-auto">
+        <div className="flex space-x-4 pb-4">
+          {options.map(({ key, icon: Icon }) => (
+            <button
+              key={key}
+              onClick={() => onSelect(key)}
+              className={`min-w-[100px] flex-shrink-0 flex flex-col items-center justify-center p-4 rounded-xl
+          ${
+            selected === key
+              ? "bg-blue-900 text-white scale-105"
+              : "bg-yellow-200 text-black"
+          }
+          border-2 border-black hover:bg-yellow-300 transition-all`}
+            >
+              <Icon size={32} />
+              <span className="mt-2 text-sm font-semibold">{key}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Progress bar */}
-      <div className="mt-4 px-4">
+      {/* <div className="mt-4 px-4">
         <div className="h-2 bg-blue-900 rounded-full w-1/3" />
         <div className="h-2 bg-gray-300 rounded-full mt-1" />
-      </div>
+      </div> */}
     </aside>
   );
 }
