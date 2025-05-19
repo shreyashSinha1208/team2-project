@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Grid,
   Clock,
@@ -13,6 +13,7 @@ import {
 interface Props {
   selected: string;
   onSelect: (t: string) => void;
+  onDataGenerated?: (data: string) => void;
 }
 
 const options = [
@@ -23,15 +24,35 @@ const options = [
   { key: "Pro", icon: Layout },
 ];
 
-export default function TemplateSidebar({ selected, onSelect }: Props) {
+export default function TemplateSidebar({
+  selected,
+  onSelect,
+  onDataGenerated,
+}: Props) {
   const [showPrompt, setShowPrompt] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [response, setResponse] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ You can change this prompt as needed
-  const systemPrompt = `You are a teacher. Give answers in a explainatory way`;
+  // System prompt changes based on selected template
+  const getSystemPrompt = () => {
+    switch (selected) {
+      case "Timeline":
+        return `You are a historical timeline data generator. When given a historical topic, generate a timeline of key events in the format "year:event" with each event on a new line. Focus on the most significant events, and provide around 10-20 entries for a comprehensive but manageable timeline. Only provide the raw data in the year:event format, with no introduction or explanation.`;
+      case "Q&A":
+        return `You are a Q&A data generator. When given a topic, generate a series of questions and answers in the format "question?:answer" with each Q&A pair on a new line. Focus on the most important aspects of the topic, and provide around 5-10 Q&A pairs. Only provide the raw data in the question?:answer format, with no introduction or explanation.`;
+      case "List":
+        return `You are a list data generator. When given a topic, organize information into a structured list with headings and items. Format each heading line as "heading X" where X can be any text, followed by list items on separate lines. Use multiple headings to organize different aspects of the topic. Only provide the raw data in this format, with no introduction or explanation. Use Heading 1
+hello
+bello
+Heading 2 format(heading text should be present before the actual heading)`;
+      case "Hierarchy":
+        return `You are a hierarchy data generator. When given a topic, create a hierarchical structure of concepts using indentation to show parent-child relationships. Items at the same indentation level have the same parent. Each level of indentation should use two additional spaces. Only provide the raw hierarchical data with proper indentation, with no introduction or explanation.`;
+      default:
+        return `You are a teacher. Give answers in an explanatory way`;
+    }
+  };
 
   const handleAIClick = async () => {
     if (!prompt.trim() || loading) return;
@@ -54,7 +75,7 @@ export default function TemplateSidebar({ selected, onSelect }: Props) {
             messages: [
               {
                 role: "system",
-                content: systemPrompt,
+                content: getSystemPrompt(),
               },
               {
                 role: "user",
@@ -73,6 +94,15 @@ export default function TemplateSidebar({ selected, onSelect }: Props) {
       const data = await res.json();
       const aiReply = data.choices?.[0]?.message?.content;
       setResponse(aiReply || "No response from AI.");
+
+      // Pass the generated data to parent component if we're in a templated mode
+      if (
+        ["Timeline", "Q&A", "List", "Hierarchy"].includes(selected) &&
+        aiReply &&
+        onDataGenerated
+      ) {
+        onDataGenerated(aiReply);
+      }
     } catch (err: any) {
       console.error(err);
       setError(
@@ -82,6 +112,13 @@ export default function TemplateSidebar({ selected, onSelect }: Props) {
       setLoading(false);
     }
   };
+
+  // Auto-open the prompt box when certain templates are selected
+  useEffect(() => {
+    if (["Timeline", "Q&A", "List", "Hierarchy"].includes(selected)) {
+      setShowPrompt(true);
+    }
+  }, [selected]);
 
   return (
     <aside className="w-64 flex flex-col bg-yellow-400 border-r border-black h-screen overflow-y-auto">
@@ -95,10 +132,6 @@ export default function TemplateSidebar({ selected, onSelect }: Props) {
           >
             Use AI<sup>✨</sup>
           </button>
-          {/* <span className="text-white text-sm flex items-center cursor-pointer hover:text-yellow-200 transition">
-            Customize
-            <ChevronDown size={16} className="ml-1" />
-          </span> */}
         </div>
       </div>
 
@@ -109,7 +142,17 @@ export default function TemplateSidebar({ selected, onSelect }: Props) {
         <div className="px-4 py-3 space-y-2">
           <textarea
             className="w-full p-2 border-2 border-black rounded-lg bg-white text-black focus:outline-none focus:ring-2 focus:ring-blue-700"
-            placeholder="Enter your prompt..."
+            placeholder={
+              selected === "Timeline"
+                ? "Enter a historical topic (e.g., ww2, cold war)..."
+                : selected === "Q&A"
+                ? "Enter a topic for Q&A generation (e.g., climate change, nutrition)..."
+                : selected === "List"
+                ? "Enter a topic for list generation (e.g., healthy foods, programming languages)..."
+                : selected === "Hierarchy"
+                ? "Enter a topic for hierarchy generation (e.g., animal classification, company structure)..."
+                : "Enter your prompt..."
+            }
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
           />
@@ -120,7 +163,17 @@ export default function TemplateSidebar({ selected, onSelect }: Props) {
             }`}
             disabled={loading}
           >
-            {loading ? "Thinking..." : "Ask AI"}
+            {loading
+              ? "Generating..."
+              : selected === "Timeline"
+              ? "Generate Timeline"
+              : selected === "Q&A"
+              ? "Generate Q&A"
+              : selected === "List"
+              ? "Generate List"
+              : selected === "Hierarchy"
+              ? "Generate Hierarchy"
+              : "Ask AI"}
           </button>
 
           {error && (
@@ -129,11 +182,20 @@ export default function TemplateSidebar({ selected, onSelect }: Props) {
             </div>
           )}
 
-          {response && (
-            <div className="p-2 bg-white border border-black rounded-lg text-sm text-black">
-              <strong>AI:</strong> {response}
+          {/* {response && (
+            <div className="p-2 bg-white border border-black rounded-lg text-sm text-black max-h-60 overflow-y-auto">
+              {selected === "Timeline" ? (
+                <>
+                  <strong>Timeline Generated:</strong>
+                  <pre className="whitespace-pre-wrap">{response}</pre>
+                </>
+              ) : (
+                <>
+                  <strong>AI:</strong> {response}
+                </>
+              )}
             </div>
-          )}
+          )} */}
         </div>
       )}
 
@@ -159,9 +221,7 @@ export default function TemplateSidebar({ selected, onSelect }: Props) {
           />
         </div>
       </div>
-      {/* Template options */}
 
-      {/* Icon buttons */}
       {/* Icon buttons - horizontal scroll */}
       <div className="px-4 py-2 mx-2 overflow-x-auto">
         <div className="flex space-x-4 pb-4">
@@ -183,12 +243,6 @@ export default function TemplateSidebar({ selected, onSelect }: Props) {
           ))}
         </div>
       </div>
-
-      {/* Progress bar */}
-      {/* <div className="mt-4 px-4">
-        <div className="h-2 bg-blue-900 rounded-full w-1/3" />
-        <div className="h-2 bg-gray-300 rounded-full mt-1" />
-      </div> */}
     </aside>
   );
 }

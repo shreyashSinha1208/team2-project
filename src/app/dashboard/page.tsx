@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // register Chart.js modules:
 import {
@@ -29,19 +29,38 @@ ChartJS.register(
 );
 
 import TemplateSidebar from "@/components/dashboard/Sidebar";
-import DataInput       from "@/components/dashboard/DataInput";
+import DataInput from "@/components/dashboard/DataInput";
 import ChartRenderer from "@/components/dashboard/ChartRenderer";
-import ZoomControls    from "@/components/dashboard/ZoomControls";
-import FooterToolbar   from "@/components/FooterToolbar";
+import ZoomControls from "@/components/dashboard/ZoomControls";
+import FooterToolbar from "@/components/FooterToolbar";
 
 export default function DashboardPage() {
-
   const [template, setTemplate] = useState<string>("Hierarchy");
-  const [rawData, setRawData]   = useState<string>("");
+  const [rawData, setRawData] = useState<string>("");
+  
+  // Function to handle template change and conditionally clear data
+  const handleTemplateChange = (newTemplate: string) => {
+    setTemplate(newTemplate);
+    
+    // Optionally clear data when switching templates
+    // Commented out to allow keeping data between template changes
+    // if (newTemplate !== template) {
+    //   setRawData("");
+    // }
+  };
+  
+  // Function to receive AI-generated data
+  const handleDataGenerated = (data: string) => {
+    setRawData(data);
+  };
 
   return (
     <div className="flex h-screen">
-      <TemplateSidebar selected={template} onSelect={setTemplate} />
+      <TemplateSidebar 
+        selected={template} 
+        onSelect={handleTemplateChange} 
+        onDataGenerated={handleDataGenerated}
+      />
       <DataInput data={rawData} onChange={setRawData} />
       <div className="flex-1 flex flex-col bg-yellow-50 p-4">
         {/* <ZoomControls /> */}
