@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import SideNav from "@/Components/SideNav";
-import SubNav from "@/Components/SubNav";
-import MobileNavigationBar from "@/Components/MobileNavigationBar";
-import InnerWebsiteNavbar from "@/Components/InnerWebsiteNavbar";
+import SideNav from "@/components/SideNav";
+import SubNav from "@/components/SubNav";
+import MobileNavigationBar from "@/components/MobileNavigationBar";
+import InnerWebsiteNavbar from "@/components/InnerWebsiteNavbar";
 
 export const metadata: Metadata = {
   title: "",

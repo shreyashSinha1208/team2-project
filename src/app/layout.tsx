@@ -1,28 +1,27 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import { Inter} from "next/font/google";
+import { Providers } from "./provoders";
 
-import { Providers } from "@/context/ThemeProvider";
 export const metadata: Metadata = {
   title: "",
   description: "",
 };
 
-const poppins = Inter({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"], // choose weights you need
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body className={poppins.className}>
+      <body className={inter.className}>
         <Providers>{children}</Providers>
       </body>
     </html>

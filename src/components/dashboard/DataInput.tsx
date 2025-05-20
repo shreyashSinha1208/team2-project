@@ -1,17 +1,34 @@
+// components/dashboard/DataInput.tsx
 "use client";
 
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/app/store/store";
+import { setItems } from "@/app/store/dataSlice";
 
-interface Props {
-  data: string;
-  onChange: (v: string) => void;
+interface DataInputProps {
+  data?: string; // optional
+  onChange?: (value: string) => void; // optional
 }
 
-export default function DataInput({ data, onChange }: Props) {
+const DataInput: React.FC<DataInputProps> = ({ data, onChange }) => {
+  const dispatch = useDispatch();
+  const reduxData = useSelector((state: RootState) => state.swot.items.join("\n"));
+
+  const handleChange = (val: string) => {
+    if (onChange) {
+      onChange(val); // for non-SWOT templates
+    } else {
+      const lines = val.split("\n").map((line) => line.trim()).filter(Boolean);
+      dispatch(setItems(lines)); // for SWOT
+    }
+  };
+
+  const textareaValue = data !== undefined ? data : reduxData;
+
   return (
     <div className="w-64 p-4 bg-white border-r flex flex-col">
       <div className="flex space-x-2 mb-2">
-        {/* toolbar icons (list, indent, trash, help, text, expand, search) */}
         <button>📋</button>
         <button>↔️</button>
         <button>🗑️</button>
@@ -22,12 +39,12 @@ export default function DataInput({ data, onChange }: Props) {
       </div>
       <textarea
         className="flex-1 border rounded p-2 focus:outline-none"
-        value={data}
-        onChange={e => onChange(e.target.value)}
-        placeholder="• item1
-• item2
-..."
+        value={textareaValue}
+        onChange={(e) => handleChange(e.target.value)}
+        placeholder={`• item1\n• item2\n...`}
       />
     </div>
   );
-}
+};
+
+export default DataInput;

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-
-// register Chart.js modules:
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { setItems } from "../store/dataSlice";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -31,39 +31,45 @@ ChartJS.register(
 import TemplateSidebar from "@/components/dashboard/Sidebar";
 import DataInput from "@/components/dashboard/DataInput";
 import ChartRenderer from "@/components/dashboard/ChartRenderer";
-import ZoomControls from "@/components/dashboard/ZoomControls";
 import FooterToolbar from "@/components/FooterToolbar";
 
 export default function DashboardPage() {
   const [template, setTemplate] = useState<string>("Hierarchy");
+  const dispatch = useDispatch();
+
+  // Use this only for templates that are not SWOT
   const [rawData, setRawData] = useState<string>("");
-  
-  // Function to handle template change and conditionally clear data
+
   const handleTemplateChange = (newTemplate: string) => {
     setTemplate(newTemplate);
-    
-    // Optionally clear data when switching templates
-    // Commented out to allow keeping data between template changes
-    // if (newTemplate !== template) {
-    //   setRawData("");
-    // }
+    // Optional: clear Redux data when switching from SWOT
+    // dispatch(clearItems());
   };
-  
-  // Function to receive AI-generated data
+
   const handleDataGenerated = (data: string) => {
-    setRawData(data);
+    if (template === "Swot") {
+      const lines = data.split('\n').map(line => line.trim()).filter(Boolean);
+      dispatch(setItems(lines));
+    } else {
+      setRawData(data);
+    }
   };
 
   return (
     <div className="flex h-screen">
-      <TemplateSidebar 
-        selected={template} 
-        onSelect={handleTemplateChange} 
+      <TemplateSidebar
+        selected={template}
+        onSelect={handleTemplateChange}
         onDataGenerated={handleDataGenerated}
       />
-      <DataInput data={rawData} onChange={setRawData} />
+
+      {template === "Swot" ? (
+        <DataInput />
+      ) : (
+        <DataInput data={rawData} onChange={setRawData} />
+      )}
+
       <div className="flex-1 flex flex-col bg-yellow-50 p-4">
-        {/* <ZoomControls /> */}
         <div className="flex-1 overflow-auto">
           <ChartRenderer template={template} rawData={rawData} />
         </div>

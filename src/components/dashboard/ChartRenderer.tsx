@@ -53,14 +53,16 @@ function parseIndentedTextToTree(text: string) {
 
 
 export default function ChartRenderer({ template, rawData }: Props) {
-  let listItems = rawData.split("\n").filter(Boolean);
+  const listItems = rawData.split("\n").filter(Boolean);
   console.log("Raw data received:", rawData);
-  let json: any;
-  try {
-    json = JSON.parse(rawData);
-  } catch (err) {
-    console.error("JSON parsing failed:", err);
-    json = null;
+
+  let json: any = null;
+  if (["Bar Chart", "Pie Chart", "Line Chart"].includes(template)) {
+    try {
+      json = JSON.parse(rawData);
+    } catch (err) {
+      console.error("JSON parsing failed:", err);
+    }
   }
 
   switch (template) {
@@ -99,7 +101,7 @@ export default function ChartRenderer({ template, rawData }: Props) {
       return <TimelineGraph data={listItems.join("\n")} />;
 
     case "Swot":
-      return <SwotView items={listItems} />;
+      return <SwotView  />;
 
     default:
       return <p className="text-center text-gray-500">Select a template</p>;
