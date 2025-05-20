@@ -3,7 +3,7 @@
 import React from "react";
 import dynamic from "next/dynamic";
 
-// Dynamically import chart components with SSR disabled
+
 const HierarchyTree = dynamic(() => import("../charts/HierarchyTree"), {
   ssr: false,
 });
@@ -16,7 +16,7 @@ const TimelineGraph = dynamic(() => import("../charts/TimelineGraph"), {
   ssr: false,
 });
 const SwotView = dynamic(() => import("../charts/SwotView"), {ssr: false,});
-// ...add others as needed
+
 
 import { TreeNode, ChartJsData } from "../types";
 
@@ -31,7 +31,7 @@ function parseIndentedTextToTree(text: string) {
   let root = null;
 
   for (const line of lines) {
-    const level = line.search(/\S/); // Number of leading spaces
+    const level = line.search(/\S/); 
     const name = line.trim();
     const node = { name, children: [] };
 

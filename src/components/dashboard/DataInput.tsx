@@ -27,22 +27,23 @@ const DataInput: React.FC<DataInputProps> = ({ data, onChange }) => {
   const textareaValue = data !== undefined ? data : reduxData;
 
   return (
-    <div className="w-64 p-4 bg-white border-r flex flex-col">
+    <div className="w-64 p-4 bg-white border-r flex flex-col h-full">
       <div className="flex space-x-2 mb-2">
-        <button>📋</button>
+        {/* <button>📋</button>
         <button>↔️</button>
         <button>🗑️</button>
         <button>❓</button>
         <button>🔤</button>
         <button>⤢</button>
-        <button>🔍</button>
+        <button>🔍</button> */}
       </div>
-      <textarea
-        className="flex-1 border rounded p-2 focus:outline-none"
-        value={textareaValue}
-        onChange={(e) => handleChange(e.target.value)}
-        placeholder={`• item1\n• item2\n...`}
-      />
+              <textarea
+          className="w-full h-full resize-none border rounded p-4 focus:outline-none"
+          value={textareaValue}
+          onChange={(e) => handleChange(e.target.value)}
+          placeholder={`• item1\n• item2\n...`}
+        />
+
     </div>
   );
 };
