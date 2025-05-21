@@ -17,6 +17,9 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Search,
+  Settings,
+  Star,
+  Zap,
 } from "lucide-react";
 
 interface Props {
@@ -30,6 +33,8 @@ interface TemplateOption {
   icon: LucideIcon;
   description: string;
   color: string;
+  gradientFrom: string;
+  gradientTo: string;
 }
 
 const options: TemplateOption[] = [
@@ -37,37 +42,49 @@ const options: TemplateOption[] = [
     key: "Hierarchy", 
     icon: Grid, 
     description: "Organize data in parent-child relationships", 
-    color: "from-blue-400 to-blue-600" 
+    color: "bg-indigo-500",
+    gradientFrom: "from-indigo-400",
+    gradientTo: "to-indigo-600" 
   },
   { 
     key: "Timeline", 
     icon: Clock, 
     description: "Visualize events in chronological order", 
-    color: "from-purple-400 to-purple-600" 
+    color: "bg-violet-500",
+    gradientFrom: "from-violet-400",
+    gradientTo: "to-violet-600" 
   },
   { 
     key: "List", 
     icon: List, 
     description: "Display data in structured lists with headings", 
-    color: "from-green-400 to-green-600" 
+    color: "bg-emerald-500",
+    gradientFrom: "from-emerald-400",
+    gradientTo: "to-emerald-600" 
   },
   { 
     key: "Q&A", 
     icon: MessageCircle, 
     description: "Present information in question-answer format", 
-    color: "from-amber-400 to-amber-600" 
+    color: "bg-amber-500",
+    gradientFrom: "from-amber-400",
+    gradientTo: "to-amber-600" 
   },
   { 
     key: "Pro", 
-    icon: Layout, 
+    icon: Star, 
     description: "Advanced visualization and analysis", 
-    color: "from-red-400 to-red-600" 
+    color: "bg-rose-500",
+    gradientFrom: "from-rose-400",
+    gradientTo: "to-rose-600" 
   },
   { 
     key: "Swot", 
     icon: Layout, 
     description: "Strengths, Weaknesses, Opportunities, Threats", 
-    color: "from-indigo-400 to-indigo-600" 
+    color: "bg-sky-500",
+    gradientFrom: "from-sky-400",
+    gradientTo: "to-sky-600" 
   },
 ];
 
@@ -154,9 +171,6 @@ Heading 2 format(heading text should be present before the actual heading)`;
       const aiReply = data.choices?.[0]?.message?.content;
       setResponse(aiReply || "No response from AI.");
 
-      // Success animation with confetti-like effect (visual feedback only)
-      // This could be replaced with an actual confetti library like react-confetti
-
       // Pass the generated data to parent component if we're in a templated mode
       if (
         ["Timeline", "Q&A", "List", "Hierarchy", "Swot"].includes(selected) &&
@@ -224,16 +238,22 @@ Heading 2 format(heading text should be present before the actual heading)`;
     }
   };
 
+  // Find the selected option
+  const selectedOption = options.find(option => option.key === selected) || options[0];
+
   return (
     <motion.aside
-      initial={{ width: 256 }}
-      animate={{ width: isCollapsed ? 64 : 256 }}
+      initial={{ width: 320 }}
+      animate={{ width: isCollapsed ? 80 : 320 }}
       transition={{ type: "spring", stiffness: 500, damping: 30 }}
-      className={`${isCollapsed ? "w-16" : "w-64"} flex flex-col bg-gradient-to-b from-gray-900 to-blue-900 h-screen overflow-hidden relative`}
+      className={`${isCollapsed ? "w-20" : "w-80"} flex flex-col bg-slate-950 h-screen overflow-hidden relative border-r border-slate-800 shadow-xl`}
     >
+      {/* Gradient overlay at the top */}
+      <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-indigo-900/30 to-transparent pointer-events-none z-0"></div>
+
       {/* Collapse toggle button */}
       <motion.button
-        className="absolute top-2 right-2 z-10 text-white bg-blue-700 hover:bg-blue-600 rounded-full p-1"
+        className="absolute top-4 right-4 z-10 text-white bg-slate-800 hover:bg-slate-700 rounded-full p-2 shadow-lg"
         onClick={() => setIsCollapsed(!isCollapsed)}
         whileTap={{ scale: 0.9 }}
       >
@@ -242,39 +262,35 @@ Heading 2 format(heading text should be present before the actual heading)`;
 
       {/* Top nav */}
       <motion.div
-        className="h-16 flex items-center justify-between px-4 border-b border-blue-800"
+        className="h-20 flex items-center px-6 border-b border-slate-800/80 relative z-10"
         layout
       >
-        <motion.h2
-          className="text-lg font-bold text-white"
+        <motion.div
+          className="flex items-center space-x-3"
           animate={{ opacity: isCollapsed ? 0 : 1 }}
         >
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 to-yellow-500">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 shadow-md">
+            <Zap size={22} className="text-white" />
+          </div>
+          <h2 className="text-xl font-bold text-white tracking-tight">
             Templates
-          </span>
-        </motion.h2>
-        
-        <AnimatePresence>
-          {!isCollapsed && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className="flex items-center space-x-2"
-            >
-              <motion.button
-                onClick={() => setShowPrompt(!showPrompt)}
-                className="flex items-center gap-1 text-yellow-300 text-sm hover:text-yellow-200 transition px-2 py-1 rounded-md border border-yellow-700"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Sparkles size={14} />
-                Use AI
-              </motion.button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+          </h2>
+        </motion.div>
       </motion.div>
+
+      {/* AI Action Button (Always visible) */}
+      <div className={`px-4 pt-5 pb-3 ${isCollapsed ? "flex justify-center" : ""}`}>
+        <motion.button
+          onClick={() => !isCollapsed && setShowPrompt(!showPrompt)}
+          className={`${isCollapsed ? "p-3" : "px-4 py-3"} flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-xl shadow-lg shadow-indigo-900/30 font-medium transition-all ${isCollapsed ? "w-12 h-12" : "w-full"}`}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          disabled={isCollapsed}
+        >
+          <Sparkles size={isCollapsed ? 20 : 18} className="text-white" />
+          {!isCollapsed && <span>Generate with AI</span>}
+        </motion.button>
+      </div>
 
       {/* AI Prompt Box with smooth transition */}
       <AnimatePresence>
@@ -285,15 +301,15 @@ Heading 2 format(heading text should be present before the actual heading)`;
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="px-4 py-3 space-y-2 bg-blue-800 bg-opacity-30 border-b border-blue-700">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-yellow-300 flex items-center gap-1">
-                  <Sparkles size={12} />
+            <div className="px-4 py-4 space-y-3 bg-slate-900/80 mx-4 rounded-xl border border-slate-800 shadow-lg">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-indigo-300 flex items-center gap-2">
+                  <Sparkles size={14} className="text-indigo-400" />
                   AI Assistant
                 </span>
                 <button
                   onClick={() => setShowPrompt(false)}
-                  className="text-gray-400 hover:text-white"
+                  className="text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-800"
                 >
                   <X size={16} />
                 </button>
@@ -301,7 +317,7 @@ Heading 2 format(heading text should be present before the actual heading)`;
               
               <div className="relative">
                 <textarea
-                  className="w-full p-3 border border-blue-700 rounded-lg bg-blue-950 text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
+                  className="w-full p-3 border border-slate-700 rounded-lg bg-slate-800 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm resize-none"
                   placeholder={getPlaceholderText()}
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
@@ -309,7 +325,7 @@ Heading 2 format(heading text should be present before the actual heading)`;
                 />
                 <motion.button
                   onClick={handleAIClick}
-                  className="absolute bottom-2 right-2 bg-yellow-500 text-blue-900 rounded-full p-1.5 hover:bg-yellow-400"
+                  className="absolute bottom-2 right-2 bg-indigo-600 text-white rounded-full p-2 hover:bg-indigo-500"
                   disabled={loading}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
@@ -324,15 +340,15 @@ Heading 2 format(heading text should be present before the actual heading)`;
               
               <motion.button
                 onClick={handleAIClick}
-                className={`w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white px-3 py-2 rounded-lg border border-blue-700 font-medium hover:from-blue-500 hover:to-blue-700 transition ${
-                  loading ? "opacity-50 cursor-not-allowed" : ""
+                className={`w-full flex items-center justify-center gap-2 bg-gradient-to-r ${selectedOption.gradientFrom} ${selectedOption.gradientTo} text-white px-4 py-3 rounded-lg font-medium shadow-md shadow-slate-900/40 ${
+                  loading ? "opacity-70 cursor-not-allowed" : ""
                 }`}
                 disabled={loading}
                 whileHover={{ scale: loading ? 1 : 1.02 }}
                 whileTap={{ scale: loading ? 1 : 0.98 }}
               >
                 {loading && (
-                  <Loader2 size={16} className="inline mr-2 animate-spin" />
+                  <Loader2 size={16} className="animate-spin" />
                 )}
                 {getButtonText()}
               </motion.button>
@@ -341,7 +357,7 @@ Heading 2 format(heading text should be present before the actual heading)`;
                 <motion.div 
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-2 bg-red-900 border border-red-700 rounded-lg text-sm text-red-200"
+                  className="p-3 bg-red-900/30 border border-red-800 rounded-lg text-sm text-red-200"
                 >
                   {error}
                 </motion.div>
@@ -358,36 +374,54 @@ Heading 2 format(heading text should be present before the actual heading)`;
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="px-4 pt-4 pb-2"
+            className="px-6 pt-4 pb-2"
           >
             <div className="relative">
-              <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400" />
+              <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search templates..."
                 value={filterText}
                 onChange={(e) => setFilterText(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 rounded-lg border border-blue-700 bg-blue-950 text-white placeholder-blue-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-slate-700/80 bg-slate-800/50 text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* Template categories label */}
+      {!isCollapsed && (
+        <div className="px-6 pt-4 pb-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Available Templates</h3>
+            <Settings size={14} className="text-slate-500" />
+          </div> 
+        </div>
+      )}
+
       {/* Template options */}
-      <div className={`flex-1 ${isCollapsed ? "px-1 py-2" : "px-4 py-4"} overflow-y-auto scrollbar-thin scrollbar-thumb-blue-700 scrollbar-track-transparent`}>
-        <div className={`grid ${isCollapsed ? "" : "grid-cols-2"} gap-3`}>
+      <motion.div 
+        className={`flex-1 ${isCollapsed ? "px-2 py-3" : "px-4 pt-2 pb-6"} overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent`}
+        layout
+      >
+        <motion.div 
+          className={`grid ${isCollapsed ? "" : "grid-cols-2"} gap-3`}
+          layout
+        >
           {filteredOptions.map((option) => (
             <motion.button
               key={option.key}
               onClick={() => onSelect(option.key)}
-              className={`relative flex ${isCollapsed ? "flex-col" : option.key === selected ? "flex-row" : "flex-col"} items-center justify-center p-3 rounded-xl
-                border ${option.key === selected ? "border-yellow-400" : "border-blue-700"}
+              className={`relative flex ${isCollapsed ? "flex-col" : option.key === selected ? "flex-row" : "flex-col"} items-center justify-center p-4 rounded-xl
                 ${option.key === selected 
-                  ? `bg-gradient-to-br ${option.color} shadow-lg` 
-                  : "bg-blue-950 hover:bg-blue-900"} 
+                  ? `bg-gradient-to-br ${option.gradientFrom} ${option.gradientTo} shadow-lg shadow-${option.color}/20` 
+                  : "bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60"} 
                 transition-all duration-300`}
-              whileHover={{ scale: 1.03 }}
+              whileHover={{ 
+                scale: 1.03,
+                boxShadow: option.key !== selected ? "0 4px 12px rgba(0, 0, 0, 0.1)" : ""
+              }}
               whileTap={{ scale: 0.97 }}
               onMouseEnter={() => {
                 setTooltipContent(option);
@@ -397,11 +431,13 @@ Heading 2 format(heading text should be present before the actual heading)`;
                 setShowTooltip(false);
               }}
             >
-              <option.icon size={isCollapsed ? 20 : 24} className={`${option.key === selected ? "text-white" : "text-blue-300"}`} />
+              <div className={`${option.key === selected ? "" : option.color} ${!isCollapsed && option.key !== selected ? "p-2 rounded-lg mb-2" : ""}`}>
+                <option.icon size={isCollapsed ? 24 : 26} className={`${option.key === selected ? "text-white" : "text-white"}`} />
+              </div>
               
               {(!isCollapsed || option.key === selected) && (
                 <motion.span 
-                  className={`${isCollapsed ? "hidden" : "block"} ${option.key === selected ? "mt-1 text-white" : "mt-2 text-blue-200"} text-sm font-medium`}
+                  className={`${isCollapsed ? "hidden" : "block"} ${option.key === selected ? "text-white font-medium ml-3" : "mt-2 text-slate-200 font-medium"} text-sm`}
                   layout
                 >
                   {option.key}
@@ -410,18 +446,18 @@ Heading 2 format(heading text should be present before the actual heading)`;
               
               {option.key === selected && (
                 <motion.div
-                  className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center"
+                  className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-lg"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   layoutId="selectedDot"
                 >
-                  <span className="text-blue-900 text-xs">✓</span>
+                  <span className={`${option.color} text-white text-xs`}>✓</span>
                 </motion.div>
               )}
             </motion.button>
           ))}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Template tooltip */}
       <AnimatePresence>
@@ -430,19 +466,20 @@ Heading 2 format(heading text should be present before the actual heading)`;
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="absolute bottom-4 left-4 right-4 bg-blue-950 border border-blue-700 rounded-lg p-3 shadow-xl z-50"
+            className="absolute bottom-6 left-4 right-4 bg-slate-800 border border-slate-700 rounded-lg p-4 shadow-2xl z-50"
           >
-            <h3 className="font-medium text-yellow-300 mb-1">{tooltipContent.key}</h3>
-            <p className="text-sm text-blue-200">{tooltipContent.description}</p>
+            <div className={`h-1.5 w-12 ${tooltipContent.color} rounded-full mb-2`}></div>
+            <h3 className="font-semibold text-white mb-1">{tooltipContent.key}</h3>
+            <p className="text-sm text-slate-300">{tooltipContent.description}</p>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Current template indicator (when collapsed) */}
       {isCollapsed && (
-        <div className="px-1 pb-4 text-center">
+        <div className="px-3 pb-6 text-center">
           <motion.div 
-            className="text-xs text-white bg-blue-800 p-1 rounded-md mx-auto"
+            className={`text-xs text-white ${selectedOption.color} p-1.5 rounded-md mx-auto`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
