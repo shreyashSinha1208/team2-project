@@ -381,8 +381,7 @@ export default function DashboardPage() {
             >
               {/* Template indicator tag */}
               <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 text-xs font-medium flex items-center gap-1.5 border border-slate-200">
-                <div className={`w-2 h-2 rounded-full ${colors.accent}`}></div>
-                {template} Template
+               
               </div>
 
               {/* Chart Renderer */}
@@ -391,10 +390,7 @@ export default function DashboardPage() {
 
             {/* Chart Footer */}
             <div className="border-t border-slate-100 p-4 bg-slate-50 flex justify-between items-center rounded-b-xl text-sm">
-              <div className="text-slate-500 flex items-center gap-2">
-                <Clock size={16} className="text-slate-400" />
-                <span>Last updated just now</span>
-              </div>
+             
              
             </div>
           </motion.div>
