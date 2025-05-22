@@ -13,7 +13,7 @@ interface DataInputProps {
 
 const DataInput: React.FC<DataInputProps> = ({ data, onChange }) => {
   const dispatch = useDispatch();
-  const reduxData = useSelector((state: RootState) => state.swot.items.join("\n"));
+  const reduxData = useSelector((state: RootState) => state.swot?.items?.join("\n") || "");
 
   const handleChange = (val: string) => {
     if (onChange) {

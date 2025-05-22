@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import dynamic from "next/dynamic";
-
+import { useAppSelector, useAppDispatch } from "@/app/store/hooks";
+import { setSelectedTemplate } from "@/app/store/chartsSlice";
 
 const HierarchyTree = dynamic(() => import("../charts/HierarchyTree"), {
   ssr: false,
@@ -16,7 +17,6 @@ const TimelineGraph = dynamic(() => import("../charts/TimelineGraph"), {
   ssr: false,
 });
 const SwotView = dynamic(() => import("../charts/SwotView"), {ssr: false,});
-
 
 import { TreeNode, ChartJsData } from "../types";
 
@@ -51,11 +51,17 @@ function parseIndentedTextToTree(text: string) {
   return root;
 }
 
-
 export default function ChartRenderer({ template, rawData }: Props) {
+  const dispatch = useAppDispatch();
+  
+  useEffect(() => {
+    if (template) {
+      dispatch(setSelectedTemplate(template));
+    }
+  }, [template, dispatch]);
+  
   const listItems = rawData.split("\n").filter(Boolean);
-  console.log("Raw data received:", rawData);
-
+  
   let json: any = null;
   if (["Bar Chart", "Pie Chart", "Line Chart"].includes(template)) {
     try {
@@ -101,7 +107,7 @@ export default function ChartRenderer({ template, rawData }: Props) {
       return <TimelineGraph data={listItems.join("\n")} />;
 
     case "Swot":
-      return <SwotView  />;
+      return <SwotView />;
 
     default:
       return <p className="text-center text-gray-500">Select a template</p>;

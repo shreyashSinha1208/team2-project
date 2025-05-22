@@ -2,6 +2,9 @@
 
 import React from "react";
 import { ChevronDown } from "lucide-react";
+import { useAppSelector, useAppDispatch } from "@/app/store/hooks";
+import { setSelectedTemplate } from "@/app/store/chartsSlice";
+import { motion } from "framer-motion";
 
 interface Props {
   selected: string;
@@ -15,30 +18,50 @@ const options = [
 ];
 
 export default function TemplateSidebar({ selected, onSelect }: Props) {
+  const dispatch = useAppDispatch();
+  const selectedTemplate = useAppSelector(state => state.charts.selectedTemplate);
+  
+  const handleSelect = (template: string) => {
+    dispatch(setSelectedTemplate(template));
+    onSelect(template);
+  };
+  
+  const displaySelected = selectedTemplate || selected;
+  
   return (
-    <aside className="w-64 bg-yellow-300 p-4 flex flex-col">
+    <aside className="w-64 bg-gradient-to-br from-yellow-300 to-yellow-400 dark:from-yellow-700 dark:to-yellow-800 p-4 flex flex-col rounded-lg shadow-md">
       <header className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold underline">Templates</h2>
+        <h2 className="text-lg font-bold text-gray-800 dark:text-white">Templates</h2>
         <div className="flex space-x-2">
-          <button className="bg-white px-2 py-1 rounded text-xs">Use AI<sup>+</sup></button>
-          <button className="bg-white px-2 py-1 rounded text-xs flex items-center">
-            Customize<ChevronDown size={14}/>
-          </button>
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="bg-white dark:bg-gray-700 dark:text-white px-3 py-1.5 rounded text-xs font-medium shadow-sm hover:shadow-md transition-shadow"
+          >
+            Use AI<sup>+</sup>
+          </motion.button>
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="bg-white dark:bg-gray-700 dark:text-white px-3 py-1.5 rounded text-xs font-medium shadow-sm hover:shadow-md transition-shadow flex items-center"
+          >
+            Customize<ChevronDown size={14} className="ml-1"/>
+          </motion.button>
         </div>
       </header>
 
       <div className="relative mb-4">
         <select
-          className="w-full p-2 rounded appearance-none bg-white"
-          value={selected}
-          onChange={e => onSelect(e.target.value)}
+          className="w-full p-2 rounded appearance-none bg-white dark:bg-gray-700 dark:text-white border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+          value={displaySelected}
+          onChange={e => handleSelect(e.target.value)}
         >
           {options.map(o => <option key={o}>{o}</option>)}
         </select>
-        <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2" size={16}/>
+        <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" size={16}/>
       </div>
 
-      <div className="grid grid-cols-4 gap-2 mb-4">
+      <div className="grid grid-cols-3 gap-2 mb-4">
         {options.map(o => {
           const Icon = {
             Hierarchy: ChevronDown,    Timeline: ChevronDown,
@@ -49,18 +72,20 @@ export default function TemplateSidebar({ selected, onSelect }: Props) {
             "Donut Chart": ChevronDown, "Line Chart": ChevronDown
           }[o]!;
           return (
-            <button
+            <motion.button
               key={o}
-              onClick={() => onSelect(o)}
-              className={`flex flex-col items-center justify-center p-2 rounded
-                ${o === selected
-                  ? "bg-blue-900 text-white"
-                  : "bg-yellow-100 text-black"}`
+              onClick={() => handleSelect(o)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`flex flex-col items-center justify-center p-2 rounded shadow-sm
+                ${o === displaySelected
+                  ? "bg-blue-600 text-white"
+                  : "bg-white dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-blue-100 dark:hover:bg-blue-900/30"}`
               }
             >
-              <Icon size={24}/>
-              <span className="text-xs mt-1">{o}</span>
-            </button>
+              <Icon size={20}/>
+              <span className="text-xs mt-1 truncate w-full text-center">{o}</span>
+            </motion.button>
           );
         })}
       </div>
