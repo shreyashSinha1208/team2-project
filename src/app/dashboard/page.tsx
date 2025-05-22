@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { setItems, setTimelineData } from "../store/dataSlice"; // Import setTimelineData
+import { setItems, setTimelineData, setListViewData } from "../store/dataSlice"; // Import setTimelineData
 import { Inter } from "next/font/google";
 const inter = Inter({
   subsets: ["latin"],
@@ -103,6 +103,8 @@ export default function DashboardPage() {
       dispatch(setItems(lines));
     } else if (template === "Timeline") { // Handle Timeline template specifically
       dispatch(setTimelineData(data)); // Dispatch to Redux for Timeline
+    } else if (template === "List") {
+      dispatch(setListViewData(data)); // Dispatch to Redux for List
     }
     else {
       setRawData(data); // For other templates that still use rawData prop

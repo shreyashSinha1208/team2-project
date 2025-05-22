@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux"; // Import useDispatch and useSelector
 import { RootState } from "@/app/store/store"; // Import RootState
-import { setItems, setTimelineData } from "@/app/store/dataSlice"; // Import Redux actions
+import { setItems, setTimelineData, setListViewData } from "@/app/store/dataSlice"; // Import Redux actions
 
 import {
   Grid,
@@ -27,6 +27,7 @@ import {
   FileText,
   Database,
 } from "lucide-react";
+import { set } from "date-fns";
 
 interface Props {
   selected: string;
@@ -101,11 +102,16 @@ export default function TemplateSidebar({
   onSelect,
   onDataGenerated,
   onManualDataChange, // New prop
-  currentRawData,     // New prop
+  currentRawData, // New prop
 }: Props) {
   const dispatch = useDispatch();
   const swotItems = useSelector((state: RootState) => state.swot.items);
-  const timelineReduxData = useSelector((state: RootState) => state.swot.timelineData);
+  const timelineReduxData = useSelector(
+    (state: RootState) => state.swot.timelineData
+  );
+  const listViewReduxData = useSelector(
+    (state: RootState) => state.swot.listViewData
+  );
 
   const [showPrompt, setShowPrompt] = useState(false);
   const [prompt, setPrompt] = useState("");
@@ -127,16 +133,18 @@ export default function TemplateSidebar({
   useEffect(() => {
     if (activeTab === "data") {
       if (selected === "Swot") {
-        setManualInputText(swotItems.join('\n'));
+        setManualInputText(swotItems.join("\n"));
       } else if (selected === "Timeline") {
         setManualInputText(timelineReduxData);
-      } else {
+      } else if (selected === "List") {
+        setManualInputText(listViewReduxData);
+      }
+      else {
         // For other templates, use the currentRawData passed from DashboardPage
         setManualInputText(currentRawData);
       }
     }
-  }, [activeTab, selected, swotItems, timelineReduxData, currentRawData]);
-
+  }, [activeTab, selected, swotItems, timelineReduxData, listViewReduxData, currentRawData]);
 
   // Filtered options based on search input
   const filteredOptions = options.filter(
@@ -419,10 +427,15 @@ The format will depend on your selected template.`;
     setManualInputText(value); // Update local state immediately
 
     if (selected === "Swot") {
-      const lines = value.split("\n").map((line) => line.trim()).filter(Boolean);
+      const lines = value
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);
       dispatch(setItems(lines));
     } else if (selected === "Timeline") {
-      dispatch(setTimelineData(value));
+      dispatch(setTimelineData(value))
+    } else if (selected === "List") {
+      dispatch(setListViewData(value));
     } else if (onManualDataChange) {
       // For other templates, pass the value up to DashboardPage
       onManualDataChange(value);
@@ -591,7 +604,9 @@ The format will depend on your selected template.`;
                       whileHover={{ scale: loading ? 1 : 1.02 }}
                       whileTap={{ scale: loading ? 1 : 0.98 }}
                     >
-                      {loading && <Loader2 size={16} className="animate-spin" />}
+                      {loading && (
+                        <Loader2 size={16} className="animate-spin" />
+                      )}
                       {getButtonText()}
                     </motion.button>
 

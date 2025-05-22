@@ -92,7 +92,7 @@ export default function ChartRenderer({ template, rawData }: Props) {
       return <LineChart rawData={rawData} />;
 
     case "List":
-      return <ListView items={listItems} />;
+      return <ListView/>;
 
     case "Q&A":
       return <QnAView items={listItems} />;
