@@ -98,7 +98,8 @@ export default function ChartRenderer({ template, rawData }: Props) {
       return <QnAView items={listItems} />;
 
     case "Timeline":
-      return <TimelineGraph data={listItems.join("\n")} />;
+      // TimelineGraph now gets its data from the Redux store, so no 'data' prop is passed here.
+      return <TimelineGraph />;
 
     case "Swot":
       return <SwotView  />;
