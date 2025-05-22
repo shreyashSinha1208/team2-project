@@ -57,7 +57,7 @@ export default function TimelineGraph() {
 
     // Reconstruct the full data string from the updated entries
     const newRawData = updatedEntries
-      .map((entry) => `${entry.year}: ${entry.description}`)
+      .map((entry) => `${entry?.year}: ${entry?.description}`)
       .join("\n");
 
     dispatch(setTimelineData(newRawData));
@@ -74,7 +74,7 @@ export default function TimelineGraph() {
 
     // Reconstruct the full data string from the updated entries
     const newRawData = updatedEntries
-      .map((entry) => `${entry.year}: ${entry.description}`)
+      .map((entry) => `${entry?.year}: ${entry?.description}`)
       .join("\n");
 
     dispatch(setTimelineData(newRawData));
@@ -96,7 +96,7 @@ export default function TimelineGraph() {
   const handleDeleteEntry = (indexToDelete: number) => {
     const updatedEntries = timelineEntries.filter((_, idx) => idx !== indexToDelete);
     const newRawData = updatedEntries
-      .map((entry) => `${entry.year}: ${entry.description}`)
+      .map((entry) => `${entry?.year}: ${entry?.description}`)
       .join("\n");
     dispatch(setTimelineData(newRawData));
   };
@@ -156,7 +156,7 @@ export default function TimelineGraph() {
 
         {timelineEntries.map((item, index) => (
           <div
-            key={item.id} // Use item.id for key
+            key={item?.id} // Use item.id for key
             className="flex justify-start pt-10 md:pt-24 md:gap-10"
           >
             <div className="sticky flex flex-col md:flex-row z-40 items-center top-40 self-start max-w-xs lg:max-w-sm md:w-full">
@@ -168,7 +168,7 @@ export default function TimelineGraph() {
               <input
                 type="text"
                 className="hidden md:block text-xl md:pl-20 md:text-5xl font-bold text-neutral-500 dark:text-neutral-500 bg-transparent border-b border-transparent focus:border-gray-400 transition-colors w-full"
-                value={item.year}
+                value={item?.year}
                 onChange={(e) => handleYearChange(index, e.target.value)}
               />
             </div>
@@ -176,12 +176,12 @@ export default function TimelineGraph() {
               <input
                 type="text"
                 className="md:hidden block text-2xl mb-4 text-left font-bold text-neutral-500 dark:text-neutral-500 bg-transparent border-b border-transparent focus:border-gray-400 transition-colors w-full"
-                value={item.year}
+                value={item?.year}
                 onChange={(e) => handleYearChange(index, e.target.value)}
               />
               <textarea
                 className="bg-white dark:bg-neutral-900 p-6 rounded-lg border-[1px] border-neutral-200 dark:border-neutral-700  transition-all duration-300 w-full resize-y min-h-[80px] focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-neutral-300"
-                value={item.description}
+                value={item?.description}
                 onChange={(e) => handleDescriptionChange(index, e.target.value)}
               />
               <button

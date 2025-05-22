@@ -112,7 +112,7 @@ export default function ListView() {
           {sections.length === 0 && (
             <div className="text-center py-16">
               <div className="w-16 h-16 mx-auto mb-4 bg-[#0790e8] dark:from-blue-900 dark:to-indigo-900 rounded-full flex items-center justify-center">
-                <FolderPlus className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                <FolderPlus className="w-8 h-8 bg-[#0790e8] dark:text-blue-400" />
               </div>
               <p className="text-slate-500 dark:text-slate-400 text-lg">
                 No lists yet. Create your first one below!
@@ -158,7 +158,7 @@ export default function ListView() {
                       className={`p-2 rounded-lg transition-all duration-200 ${
                         showInput
                           ? 'bg-red-100 hover:bg-red-200 text-red-600 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-400'
-                          : 'bg-blue-100 hover:bg-blue-200 text-blue-600 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-400'
+                          : 'bg-blue-100 hover:bg-blue-200 text-[#0790e8] dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-400'
                       }`}
                       aria-label={showInput ? "Cancel add item" : "Add item"}
                     >
@@ -238,7 +238,7 @@ export default function ListView() {
         <div className="mt-8 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl rounded-2xl border dark:border-slate-700/50 p-6">
           <div className="flex items-center space-x-3 mb-6">
             <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 rounded-lg">
-              <FolderPlus className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <FolderPlus className="w-6 h-6 text-[#0790e8] dark:text-blue-400" />
             </div>
             <div>
               <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
