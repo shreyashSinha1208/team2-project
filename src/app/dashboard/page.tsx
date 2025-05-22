@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setItems } from "../store/dataSlice";
+import { Inter } from "next/font/google";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,6 +15,7 @@ import {
   PointElement,
   LineElement,
 } from 'chart.js';
+
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
@@ -57,6 +59,12 @@ interface NavItem {
   icon: LucideIcon;
   active?: boolean;
 }
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export default function DashboardPage() {
   const [template, setTemplate] = useState<string>("Hierarchy");
@@ -206,11 +214,11 @@ export default function DashboardPage() {
 
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-slate-100 font-sans">
+    <div className={`flex flex-col ${inter.variable} md:flex-row h-screen bg-slate-100`}>
       {/* Left vertical nav bar - Desktop only */}
       {/* This sidebar is distinct from your TemplateSidebar; it's a fixed app navigation */}
       <div className="hidden md:flex flex-col items-center w-16 bg-slate-900 border-r border-slate-800 py-6 space-y-8 shadow-xl z-30">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br bg-[#0790e8] flex items-center justify-center shadow-lg">
           <Zap size={20} className="text-white" />
         </div>
 
@@ -372,7 +380,7 @@ export default function DashboardPage() {
 
             {/* Chart Content Area */}
             <motion.div
-              className="flex-1 p-6 overflow-auto bg-white relative flex items-center justify-center" // Centering content
+              className="flex-1 p-6 overflow-auto bg-white relative justify-center" // Centering content
               animate={animateChart ? {
                 scale: [0.95, 1.02, 1],
                 opacity: [0.5, 1]
