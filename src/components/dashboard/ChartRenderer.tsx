@@ -102,7 +102,7 @@ export default function ChartRenderer({ template, rawData }: Props) {
       return <TimelineGraph />;
 
     case "Swot":
-      return <SwotView  />;
+      return <SwotView />;
 
     default:
       return <p className="text-center text-gray-500">Select a template</p>;

@@ -2,6 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useDispatch, useSelector } from "react-redux"; // Import useDispatch and useSelector
+import { RootState } from "@/app/store/store"; // Import RootState
+import { setItems, setTimelineData } from "@/app/store/dataSlice"; // Import Redux actions
+
 import {
   Grid,
   Clock,
@@ -27,10 +31,9 @@ import {
 interface Props {
   selected: string;
   onSelect: (t: string) => void;
-  onDataGenerated?: (data: string) => void;
-  data?: string;
-  onChange?: (value: string) => void;
-  dispatch?: any; // For Redux dispatch
+  onDataGenerated?: (data: string) => void; // For AI generated data
+  onManualDataChange?: (data: string) => void; // New prop for manually typed data in other templates
+  currentRawData: string; // New prop to receive current rawData from DashboardPage
 }
 
 interface TemplateOption {
@@ -97,10 +100,13 @@ export default function TemplateSidebar({
   selected,
   onSelect,
   onDataGenerated,
-  data,
-  onChange,
-  dispatch,
+  onManualDataChange, // New prop
+  currentRawData,     // New prop
 }: Props) {
+  const dispatch = useDispatch();
+  const swotItems = useSelector((state: RootState) => state.swot.items);
+  const timelineReduxData = useSelector((state: RootState) => state.swot.timelineData);
+
   const [showPrompt, setShowPrompt] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [response, setResponse] = useState("");
@@ -113,6 +119,24 @@ export default function TemplateSidebar({
     null
   );
   const [activeTab, setActiveTab] = useState<"templates" | "data">("templates");
+
+  // Local state for the manual data input textarea
+  const [manualInputText, setManualInputText] = useState<string>("");
+
+  // Effect to synchronize manualInputText with Redux state or currentRawData
+  useEffect(() => {
+    if (activeTab === "data") {
+      if (selected === "Swot") {
+        setManualInputText(swotItems.join('\n'));
+      } else if (selected === "Timeline") {
+        setManualInputText(timelineReduxData);
+      } else {
+        // For other templates, use the currentRawData passed from DashboardPage
+        setManualInputText(currentRawData);
+      }
+    }
+  }, [activeTab, selected, swotItems, timelineReduxData, currentRawData]);
+
 
   // Filtered options based on search input
   const filteredOptions = options.filter(
@@ -225,6 +249,8 @@ Threats
         onDataGenerated
       ) {
         onDataGenerated(aiReply);
+        // Also update the manual input text with AI response
+        setManualInputText(aiReply);
         // Auto-hide the prompt box after successful generation
         setTimeout(() => setShowPrompt(false), 1000);
       }
@@ -289,15 +315,18 @@ Threats
   const selectedOption =
     options.find((option) => option.key === selected) || options[0];
 
-  // Handle data input change
-  const handleDataChange = (value: string) => {
-    if (selected === "Swot" && dispatch) {
-      // For SWOT template, use Redux
+  // Handle data input change for the textarea in Data Input tab
+  const handleManualInputChange = (value: string) => {
+    setManualInputText(value); // Update local state immediately
+
+    if (selected === "Swot") {
       const lines = value.split("\n").map((line) => line.trim()).filter(Boolean);
-      dispatch({ type: 'swot/setItems', payload: lines });
-    } else if (onChange) {
-      // For other templates, use the provided onChange
-      onChange(value);
+      dispatch(setItems(lines));
+    } else if (selected === "Timeline") {
+      dispatch(setTimelineData(value));
+    } else if (onManualDataChange) {
+      // For other templates, pass the value up to DashboardPage
+      onManualDataChange(value);
     }
   };
 
@@ -608,30 +637,15 @@ Threats
               <div className="h-full bg-slate-800/50 border border-slate-700/60 rounded-xl p-4">
                 <textarea
                   className="w-full h-full resize-none bg-transparent text-white placeholder-slate-400 focus:outline-none text-sm leading-relaxed"
-                  value={data || ""}
-                  onChange={(e) => handleDataChange(e.target.value)}
-                  placeholder={selected === "Swot" ? 
-`Strengths
-1. High efficiency
-2. Strong team
-
-Weaknesses
-1. Limited budget
-2. Small market share
-
-Opportunities
-1. Growing demand
-2. New markets
-
-Threats
-1. Competitors
-2. Economic downturn` : 
-`• item1
-• item2
-• item3
-...
-
-Or paste your data here...`}
+                  value={manualInputText} // Use local state
+                  onChange={(e) => handleManualInputChange(e.target.value)} // Handle changes
+                  placeholder={
+                    selected === "Swot"
+                      ? `Strengths\n1. High efficiency\n2. Strong team\n\nWeaknesses\n1. Limited budget\n2. Small market share\n\nOpportunities\n1. Growing demand\n2. New markets\n\nThreats\n1. Competitors\n2. Economic downturn`
+                      : selected === "Timeline"
+                      ? `1990: Event Description 1\n2000: Event Description 2`
+                      : `• item1\n• item2\n• item3\n...`
+                  }
                 />
               </div>
             </div>

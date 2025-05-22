@@ -1,8 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { setItems } from "../store/dataSlice";
-import { Inter } from "next/font/google";
+import { setItems, setTimelineData } from "../store/dataSlice"; // Import setTimelineData
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,23 +14,29 @@ import {
   PointElement,
   LineElement,
 } from 'chart.js';
-
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
+  MoveDown,
   Wand2,
   Menu,
   X,
+  PanelLeft, // Keep PanelLeft for desktop sidebar toggle if needed
+  PanelRight, // Keep PanelRight for desktop sidebar toggle if needed
   Download,
   LayoutDashboard,
   Zap,
+  ArrowUpRight,
+  ListFilter,
   BarChart3,
   Settings,
-  LucideIcon,
-  ListFilter
+  LucideIcon, 
+  Clock// Make sure LucideIcon is imported if you use it in NavItem
 } from "lucide-react";
-import TemplateSidebar from "@/components/dashboard/Sidebar"; 
+import TemplateSidebar from "@/components/dashboard/Sidebar"; // Assuming this is your TemplateSidebar
+// DataInput component is no longer imported here as its functionality moves to TemplateSidebar
 import ChartRenderer from "@/components/dashboard/ChartRenderer";
+import FooterToolbar from "@/components/FooterToolbar";
 
 // Register Chart.js components - IMPORTANT!
 ChartJS.register(
@@ -46,22 +51,18 @@ ChartJS.register(
   LineElement
 );
 
-// Define NavItem interface
+// Define NavItem interface (if not already defined elsewhere)
 interface NavItem {
   name: string;
   icon: LucideIcon;
   active?: boolean;
 }
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
 export default function DashboardPage() {
   const [template, setTemplate] = useState<string>("Hierarchy");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Removed isDataInputVisible state as it's now handled within TemplateSidebar
+  // Removed activeView state as it's no longer needed here
   const [animateChart, setAnimateChart] = useState(false);
   const dispatch = useDispatch();
 
@@ -70,7 +71,7 @@ export default function DashboardPage() {
   // State to track if the screen is considered "large" (>= 768px)
   const [isLargeScreen, setIsLargeScreen] = useState(false);
 
-  // Use this only for templates that are not SWOT
+  // rawData is still needed for templates that don't use Redux (Hierarchy, Bar, Pie, Line, List, Q&A)
   const [rawData, setRawData] = useState<string>("");
 
   // Navigation items for the new vertical sidebar structure
@@ -80,6 +81,7 @@ export default function DashboardPage() {
     { name: "Templates", icon: ListFilter },
     { name: "Settings", icon: Settings }
   ];
+
 
   const handleTemplateChange = (newTemplate: string) => {
     setTemplate(newTemplate);
@@ -94,20 +96,16 @@ export default function DashboardPage() {
     if (template === "Swot") {
       const lines = data.split('\n').map(line => line.trim()).filter(Boolean);
       dispatch(setItems(lines));
-    } else {
-      setRawData(data);
+    } else if (template === "Timeline") { // Handle Timeline template specifically
+      dispatch(setTimelineData(data)); // Dispatch to Redux for Timeline
     }
+    else {
+      setRawData(data); // For other templates that still use rawData prop
+    }
+    // Removed setActiveView("chart") as activeView is removed
   };
 
-  const handleDataChange = (data: string) => {
-    if (template === "Swot") {
-      const lines = data.split('\n').map(line => line.trim()).filter(Boolean);
-      dispatch(setItems(lines));
-    } else {
-      setRawData(data);
-    }
-  };
-
+  // toggleSidebar remains for the main sidebar
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
@@ -134,7 +132,8 @@ export default function DashboardPage() {
     }
   }, [mounted]); // Depend on mounted to ensure it runs client-side
 
-  // Get accent colors based on template
+
+  // Get accent colors based on template (Copied from your previous response)
   const getTemplateColors = () => {
     switch (template) {
       case "Hierarchy":
@@ -191,7 +190,7 @@ export default function DashboardPage() {
           hoverBg: "hover:bg-sky-100",
           lightBg: "bg-sky-50"
         };
-      default:
+      default: // Added cases for Bar Chart, Pie Chart, Line Chart for consistent theming
         return {
           gradient: "from-blue-400 to-blue-600",
           accent: "bg-blue-500",
@@ -205,11 +204,13 @@ export default function DashboardPage() {
 
   const colors = getTemplateColors();
 
+
   return (
-    <div className={`flex flex-col ${inter.variable} md:flex-row h-screen bg-slate-100`}>
+    <div className="flex flex-col md:flex-row h-screen bg-slate-100 font-sans">
       {/* Left vertical nav bar - Desktop only */}
+      {/* This sidebar is distinct from your TemplateSidebar; it's a fixed app navigation */}
       <div className="hidden md:flex flex-col items-center w-16 bg-slate-900 border-r border-slate-800 py-6 space-y-8 shadow-xl z-30">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br bg-[#0790e8] flex items-center justify-center shadow-lg">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
           <Zap size={20} className="text-white" />
         </div>
 
@@ -221,7 +222,7 @@ export default function DashboardPage() {
                 ${item.active
                   ? 'bg-slate-700 text-white shadow-md'
                   : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800'}`}
-              title={item.name}
+              title={item.name} // Add title for accessibility on hover
             >
               <item.icon size={20} />
             </button>
@@ -229,7 +230,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Mobile Top Toolbar */}
+      {/* Mobile Top Toolbar - Always visible on mobile */}
       <div className="md:hidden flex justify-between items-center p-4 bg-slate-900 text-white shadow-lg z-20">
         <button
           onClick={toggleSidebar}
@@ -239,52 +240,73 @@ export default function DashboardPage() {
         </button>
 
         <div className="font-semibold text-lg flex items-center gap-2">
-          <div className={`w-3 h-3 rounded-full ${colors.accent}`}></div>
+          <div className={`w-3 h-3 rounded-full ${colors.accent}`}></div> {/* Slightly larger dot */}
           {template}
         </div>
 
-        <div className="w-10 h-8"></div> {/* Spacer for centering */}
+        {/* Mobile View Toggle (Data/Chart) - REMOVED as TemplateSidebar handles tabs */}
+        {/* <button
+          onClick={() => setActiveView(activeView === "data" ? "chart" : "data")}
+          className={`px-3 py-2 rounded-lg bg-gradient-to-r ${colors.gradient} text-white text-sm flex items-center gap-1`}
+        >
+          {activeView === "data" ? <BarChart3 size={18} /> : <ListFilter size={18} />}
+          <span>{activeView === "data" ? "Chart" : "Data"}</span>
+        </button> */}
       </div>
 
       {/* Template Sidebar with animation */}
       <AnimatePresence>
+        {/* Render sidebar if it's explicitly open OR (if mounted AND on a large screen) */}
         {(sidebarOpen || (mounted && isLargeScreen)) && (
           <motion.div
             initial={{ x: -320, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -320, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="z-20 absolute md:relative md:block h-full shadow-2xl"
+            className="z-20 absolute md:relative md:block h-full shadow-2xl" // Added shadow
           >
             <TemplateSidebar
               selected={template}
               onSelect={handleTemplateChange}
               onDataGenerated={handleDataGenerated}
-              data={rawData}
-              onChange={handleDataChange}
-              dispatch={dispatch}
+              onManualDataChange={setRawData} // Pass setRawData for manual input
+              currentRawData={rawData} // Pass current rawData to TemplateSidebar
             />
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col overflow-hidden h-full">
+      <div className="flex-1 flex flex-col overflow-hidden h-full"> {/* Changed to flex-col for desktop responsiveness */}
         {/* Desktop Header */}
         <div className="hidden md:flex w-full h-16 border-b border-slate-200 px-8 items-center justify-between bg-white shadow-sm z-10">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
+           
           </div>
+
+         
         </div>
 
-        {/* Chart Visualization Section - Full Width */}
-        <div className="flex-1 p-4 overflow-hidden">
+        {/* Chart Visualization Section - Always visible */}
+        <div className="flex-1 flex flex-col md:flex-row p-4 gap-4 overflow-hidden">
           <motion.div
-            className="w-full h-full flex flex-col bg-white rounded-xl shadow-lg overflow-hidden relative border border-slate-200"
+            className="flex-1 flex flex-col bg-white rounded-xl shadow-lg overflow-hidden relative border border-slate-200"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1, type: "spring", stiffness: 200, damping: 20 }}
           >
+            {/* Toggle Data panel button (for desktop when data input is hidden) - REMOVED as sidebar handles visibility */}
+            {/* {!isDataInputVisible && mounted && isLargeScreen && (
+              <button
+                onClick={() => setIsDataInputVisible(true)}
+                className="absolute top-4 left-4 z-10 p-2 rounded-full bg-white shadow-md border border-slate-200 hover:bg-slate-50 transition-colors text-slate-600"
+                title="Show Data Input"
+              >
+                <PanelRight size={20} />
+              </button>
+            )} */}
+
             {/* Chart Header */}
             <div className={`bg-gradient-to-r ${colors.gradient} p-4 text-white rounded-t-xl flex justify-between items-center shadow-md`}>
               <div className="flex items-center gap-3">
@@ -308,15 +330,15 @@ export default function DashboardPage() {
                   <Wand2 size={16} /> Animate
                 </button>
 
-                <button className="flex items-center gap-1.5 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg backdrop-blur-sm transition-colors text-sm font-medium">
+                {/* <button className="flex items-center gap-1.5 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg backdrop-blur-sm transition-colors text-sm font-medium">
                   <Download size={16} /> Export
-                </button>
+                </button> */}
               </div>
             </div>
 
             {/* Chart Content Area */}
             <motion.div
-              className="flex-1 p-6 overflow-auto bg-white relative justify-center"
+              className="flex-1 p-6 overflow-auto bg-white relative flex items-center justify-center" // Centering content
               animate={animateChart ? {
                 scale: [0.95, 1.02, 1],
                 opacity: [0.5, 1]
@@ -325,8 +347,7 @@ export default function DashboardPage() {
             >
               {/* Template indicator tag */}
               <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 text-xs font-medium flex items-center gap-1.5 border border-slate-200">
-                <div className={`w-2 h-2 rounded-full ${colors.accent}`}></div>
-                {template}
+               
               </div>
 
               {/* Chart Renderer */}
@@ -335,17 +356,24 @@ export default function DashboardPage() {
 
             {/* Chart Footer */}
             <div className="border-t border-slate-100 p-4 bg-slate-50 flex justify-between items-center rounded-b-xl text-sm">
-              <div className="flex items-center gap-2 text-slate-600">
-                <div className={`w-2 h-2 rounded-full ${colors.accent}`}></div>
-                <span>Real-time visualization</span>
-              </div>
-              <div className="text-slate-500">
-                Last updated: {new Date().toLocaleTimeString()}
-              </div>
+             
+             
             </div>
           </motion.div>
         </div>
       </div>
+
+      {/* Mobile Data/Chart Toggle Button - Fixed at bottom right - REMOVED */}
+      {/* <div className="md:hidden fixed bottom-6 right-6 z-40">
+        <motion.button
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setActiveView(activeView === "data" ? "chart" : "data")}
+          className={`w-16 h-16 rounded-full bg-gradient-to-r ${colors.gradient} text-white shadow-xl flex items-center justify-center text-2xl`}
+        >
+          {activeView === "data" ? <BarChart3 size={28} /> : <ListFilter size={28} />}
+        </motion.button>
+      </div> */}
     </div>
   );
 }
