@@ -20,12 +20,17 @@ import {
   Settings,
   Star,
   Zap,
+  FileText,
+  Database,
 } from "lucide-react";
 
 interface Props {
   selected: string;
   onSelect: (t: string) => void;
   onDataGenerated?: (data: string) => void;
+  data?: string;
+  onChange?: (value: string) => void;
+  dispatch?: any; // For Redux dispatch
 }
 
 interface TemplateOption {
@@ -92,6 +97,9 @@ export default function TemplateSidebar({
   selected,
   onSelect,
   onDataGenerated,
+  data,
+  onChange,
+  dispatch,
 }: Props) {
   const [showPrompt, setShowPrompt] = useState(false);
   const [prompt, setPrompt] = useState("");
@@ -104,6 +112,7 @@ export default function TemplateSidebar({
   const [tooltipContent, setTooltipContent] = useState<TemplateOption | null>(
     null
   );
+  const [activeTab, setActiveTab] = useState<"templates" | "data">("templates");
 
   // Filtered options based on search input
   const filteredOptions = options.filter(
@@ -280,6 +289,18 @@ Threats
   const selectedOption =
     options.find((option) => option.key === selected) || options[0];
 
+  // Handle data input change
+  const handleDataChange = (value: string) => {
+    if (selected === "Swot" && dispatch) {
+      // For SWOT template, use Redux
+      const lines = value.split("\n").map((line) => line.trim()).filter(Boolean);
+      dispatch({ type: 'swot/setItems', payload: lines });
+    } else if (onChange) {
+      // For other templates, use the provided onChange
+      onChange(value);
+    }
+  };
+
   return (
     <motion.aside
       initial={{ width: 320 }}
@@ -314,238 +335,332 @@ Threats
           className="flex items-center space-x-3"
           animate={{ opacity: isCollapsed ? 0 : 1 }}
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br  bg-[#0790e8] shadow-md">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br bg-[#0790e8] shadow-md">
             <Zap size={22} className="text-white" />
           </div>
           <h2 className="text-xl font-bold text-white tracking-tight">
-            Templates
+            Dashboard
           </h2>
         </motion.div>
       </motion.div>
 
-      {/* AI Action Button (Always visible) */}
-      <div
-        className={`px-4 pt-5 pb-3 ${isCollapsed ? "flex justify-center" : ""}`}
-      >
-        <motion.button
-          onClick={() => !isCollapsed && setShowPrompt(!showPrompt)}
-          className={`${
-            isCollapsed ? "p-3" : "px-4 py-3"
-          } flex items-center justify-center gap-2 bg-gradient-to-r  bg-[#0790e8] text-white rounded-xl shadow-lg shadow-indigo-900/30 font-medium transition-all ${
-            isCollapsed ? "w-12 h-12" : "w-full"
-          }`}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          disabled={isCollapsed}
-        >
-          <Sparkles size={isCollapsed ? 20 : 18} className="text-white" />
-          {!isCollapsed && <span>Generate with AI</span>}
-        </motion.button>
-      </div>
-
-      {/* AI Prompt Box with smooth transition */}
-      <AnimatePresence>
-        {showPrompt && !isCollapsed && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="px-4 py-4 space-y-3 bg-slate-900/80 mx-4 rounded-xl border border-slate-800 shadow-lg">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-indigo-300 flex items-center gap-2">
-                  <Sparkles size={14} className="text-indigo-400" />
-                  AI Assistant
-                </span>
-                <button
-                  onClick={() => setShowPrompt(false)}
-                  className="text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-800"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-
-              <div className="relative">
-                <textarea
-                  className="w-full p-3 border border-slate-700 rounded-lg bg-slate-800 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm resize-none"
-                  placeholder={getPlaceholderText()}
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  rows={3}
-                />
-                <motion.button
-                  onClick={handleAIClick}
-                  className="absolute bottom-2 right-2 bg-indigo-600 text-white rounded-full p-2 hover:bg-indigo-500"
-                  disabled={loading}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  {loading ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    <Send size={16} />
-                  )}
-                </motion.button>
-              </div>
-
-              <motion.button
-                onClick={handleAIClick}
-                className={`w-full flex items-center justify-center gap-2 bg-gradient-to-r ${
-                  selectedOption.gradientFrom
-                } ${
-                  selectedOption.gradientTo
-                } text-white px-4 py-3 rounded-lg font-medium shadow-md shadow-slate-900/40 ${
-                  loading ? "opacity-70 cursor-not-allowed" : ""
-                }`}
-                disabled={loading}
-                whileHover={{ scale: loading ? 1 : 1.02 }}
-                whileTap={{ scale: loading ? 1 : 0.98 }}
-              >
-                {loading && <Loader2 size={16} className="animate-spin" />}
-                {getButtonText()}
-              </motion.button>
-
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="p-3 bg-red-900/30 border border-red-800 rounded-lg text-sm text-red-200"
-                >
-                  {error}
-                </motion.div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Search / Filter */}
+      {/* Tab Navigation */}
       <AnimatePresence>
         {!isCollapsed && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="px-6 pt-4 pb-2"
+            className="px-4 pt-4 pb-2"
           >
-            <div className="relative">
-              <Search
-                size={16}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
-              />
-              <input
-                type="text"
-                placeholder="Search templates..."
-                value={filterText}
-                onChange={(e) => setFilterText(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-slate-700/80 bg-slate-800/50 text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              />
+            <div className="flex bg-slate-800/50 rounded-lg p-1 border border-slate-700/50">
+              <button
+                onClick={() => setActiveTab("templates")}
+                className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                  activeTab === "templates"
+                    ? "bg-indigo-600 text-white shadow-sm"
+                    : "text-slate-300 hover:text-white hover:bg-slate-700/50"
+                }`}
+              >
+                <FileText size={16} />
+                Templates
+              </button>
+              <button
+                onClick={() => setActiveTab("data")}
+                className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                  activeTab === "data"
+                    ? "bg-indigo-600 text-white shadow-sm"
+                    : "text-slate-300 hover:text-white hover:bg-slate-700/50"
+                }`}
+              >
+                <Database size={16} />
+                Data Input
+              </button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Template categories label */}
-      {!isCollapsed && (
-        <div className="px-6 pt-4 pb-2">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Available Templates
-            </h3>
-            <Settings size={14} className="text-slate-500" />
+      {/* Content based on active tab */}
+      <AnimatePresence mode="wait">
+        {activeTab === "templates" && !isCollapsed && (
+          <motion.div
+            key="templates"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="flex-1 flex flex-col overflow-hidden"
+          >
+            {/* AI Action Button */}
+            <div className="px-4 pt-3 pb-3">
+              <motion.button
+                onClick={() => setShowPrompt(!showPrompt)}
+                className="px-4 py-3 flex items-center justify-center gap-2 bg-gradient-to-r bg-[#0790e8] text-white rounded-xl shadow-lg shadow-indigo-900/30 font-medium transition-all w-full"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Sparkles size={18} className="text-white" />
+                <span>Generate with AI</span>
+              </motion.button>
+            </div>
+
+            {/* AI Prompt Box */}
+            <AnimatePresence>
+              {showPrompt && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="px-4 py-4 space-y-3 bg-slate-900/80 mx-4 rounded-xl border border-slate-800 shadow-lg">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-indigo-300 flex items-center gap-2">
+                        <Sparkles size={14} className="text-indigo-400" />
+                        AI Assistant
+                      </span>
+                      <button
+                        onClick={() => setShowPrompt(false)}
+                        className="text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-800"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+
+                    <div className="relative">
+                      <textarea
+                        className="w-full p-3 border border-slate-700 rounded-lg bg-slate-800 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm resize-none"
+                        placeholder={getPlaceholderText()}
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                        rows={3}
+                      />
+                      <motion.button
+                        onClick={handleAIClick}
+                        className="absolute bottom-2 right-2 bg-indigo-600 text-white rounded-full p-2 hover:bg-indigo-500"
+                        disabled={loading}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        {loading ? (
+                          <Loader2 size={16} className="animate-spin" />
+                        ) : (
+                          <Send size={16} />
+                        )}
+                      </motion.button>
+                    </div>
+
+                    <motion.button
+                      onClick={handleAIClick}
+                      className={`w-full flex items-center justify-center gap-2 bg-gradient-to-r ${
+                        selectedOption.gradientFrom
+                      } ${
+                        selectedOption.gradientTo
+                      } text-white px-4 py-3 rounded-lg font-medium shadow-md shadow-slate-900/40 ${
+                        loading ? "opacity-70 cursor-not-allowed" : ""
+                      }`}
+                      disabled={loading}
+                      whileHover={{ scale: loading ? 1 : 1.02 }}
+                      whileTap={{ scale: loading ? 1 : 0.98 }}
+                    >
+                      {loading && <Loader2 size={16} className="animate-spin" />}
+                      {getButtonText()}
+                    </motion.button>
+
+                    {error && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="p-3 bg-red-900/30 border border-red-800 rounded-lg text-sm text-red-200"
+                      >
+                        {error}
+                      </motion.div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Search / Filter */}
+            <div className="px-6 pt-4 pb-2">
+              <div className="relative">
+                <Search
+                  size={16}
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
+                />
+                <input
+                  type="text"
+                  placeholder="Search templates..."
+                  value={filterText}
+                  onChange={(e) => setFilterText(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-slate-700/80 bg-slate-800/50 text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            {/* Template categories label */}
+            <div className="px-6 pt-4 pb-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  Available Templates
+                </h3>
+                <Settings size={14} className="text-slate-500" />
+              </div>
+            </div>
+
+            {/* Template options */}
+            <div className="flex-1 px-4 pt-2 pb-6 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+              <div className="grid grid-cols-2 gap-3">
+                {filteredOptions.map((option) => (
+                  <motion.button
+                    key={option.key}
+                    onClick={() => onSelect(option.key)}
+                    className={`relative flex ${
+                      option.key === selected ? "flex-row" : "flex-col"
+                    } items-center justify-center p-4 rounded-xl
+                      ${
+                        option.key === selected
+                          ? `bg-gradient-to-br ${option.gradientFrom} ${option.gradientTo} shadow-lg shadow-${option.color}/20`
+                          : "bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60"
+                      } 
+                      transition-all duration-300`}
+                    whileHover={{
+                      scale: 1.03,
+                      boxShadow:
+                        option.key !== selected
+                          ? "0 4px 12px rgba(0, 0, 0, 0.1)"
+                          : "",
+                    }}
+                    whileTap={{ scale: 0.97 }}
+                    onMouseEnter={() => {
+                      setTooltipContent(option);
+                      setShowTooltip(true);
+                    }}
+                    onMouseLeave={() => {
+                      setShowTooltip(false);
+                    }}
+                  >
+                    <div
+                      className={`${
+                        option.key === selected ? "" : option.color
+                      } ${
+                        option.key !== selected ? "p-2 rounded-lg mb-2" : ""
+                      }`}
+                    >
+                      <option.icon
+                        size={26}
+                        className={`${
+                          option.key === selected ? "text-white" : "text-white"
+                        }`}
+                      />
+                    </div>
+
+                    <motion.span
+                      className={`${
+                        option.key === selected
+                          ? "text-white font-medium ml-3"
+                          : "mt-2 text-slate-200 font-medium"
+                      } text-sm`}
+                      layout
+                    >
+                      {option.key}
+                    </motion.span>
+
+                    {option.key === selected && (
+                      <motion.div
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-lg"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        layoutId="selectedDot"
+                      >
+                        <span className={`${option.color} text-white text-xs`}>
+                          ✓
+                        </span>
+                      </motion.div>
+                    )}
+                  </motion.button>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === "data" && !isCollapsed && (
+          <motion.div
+            key="data"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            className="flex-1 flex flex-col overflow-hidden"
+          >
+            {/* Data Input Header */}
+            <div className="px-6 pt-4 pb-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  Data Input
+                </h3>
+                <Database size={14} className="text-slate-500" />
+              </div>
+            </div>
+
+            {/* Data Input Textarea */}
+            <div className="flex-1 px-4 pt-2 pb-6 overflow-hidden">
+              <div className="h-full bg-slate-800/50 border border-slate-700/60 rounded-xl p-4">
+                <textarea
+                  className="w-full h-full resize-none bg-transparent text-white placeholder-slate-400 focus:outline-none text-sm leading-relaxed"
+                  value={data || ""}
+                  onChange={(e) => handleDataChange(e.target.value)}
+                  placeholder={selected === "Swot" ? 
+`Strengths
+1. High efficiency
+2. Strong team
+
+Weaknesses
+1. Limited budget
+2. Small market share
+
+Opportunities
+1. Growing demand
+2. New markets
+
+Threats
+1. Competitors
+2. Economic downturn` : 
+`• item1
+• item2
+• item3
+...
+
+Or paste your data here...`}
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Collapsed state content */}
+      {isCollapsed && (
+        <div className="flex-1 flex flex-col items-center justify-center py-4">
+          <div className="space-y-4">
+            {options.slice(0, 3).map((option) => (
+              <motion.button
+                key={option.key}
+                onClick={() => onSelect(option.key)}
+                className={`p-3 rounded-xl ${
+                  option.key === selected
+                    ? `bg-gradient-to-br ${option.gradientFrom} ${option.gradientTo}`
+                    : "bg-slate-800/60 hover:bg-slate-800"
+                }`}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <option.icon size={20} className="text-white" />
+              </motion.button>
+            ))}
           </div>
         </div>
       )}
-
-      {/* Template options */}
-      <motion.div
-        className={`flex-1 ${
-          isCollapsed ? "px-2 py-3" : "px-4 pt-2 pb-6"
-        } overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent`}
-        layout
-      >
-        <motion.div
-          className={`grid ${isCollapsed ? "" : "grid-cols-2"} gap-3`}
-          layout
-        >
-          {filteredOptions.map((option) => (
-            <motion.button
-              key={option.key}
-              onClick={() => onSelect(option.key)}
-              className={`relative flex ${
-                isCollapsed
-                  ? "flex-col"
-                  : option.key === selected
-                  ? "flex-row"
-                  : "flex-col"
-              } items-center justify-center p-4 rounded-xl
-                ${
-                  option.key === selected
-                    ? `bg-gradient-to-br ${option.gradientFrom} ${option.gradientTo} shadow-lg shadow-${option.color}/20`
-                    : "bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60"
-                } 
-                transition-all duration-300`}
-              whileHover={{
-                scale: 1.03,
-                boxShadow:
-                  option.key !== selected
-                    ? "0 4px 12px rgba(0, 0, 0, 0.1)"
-                    : "",
-              }}
-              whileTap={{ scale: 0.97 }}
-              onMouseEnter={() => {
-                setTooltipContent(option);
-                setShowTooltip(true);
-              }}
-              onMouseLeave={() => {
-                setShowTooltip(false);
-              }}
-            >
-              <div
-                className={`${option.key === selected ? "" : option.color} ${
-                  !isCollapsed && option.key !== selected
-                    ? "p-2 rounded-lg mb-2"
-                    : ""
-                }`}
-              >
-                <option.icon
-                  size={isCollapsed ? 24 : 26}
-                  className={`${
-                    option.key === selected ? "text-white" : "text-white"
-                  }`}
-                />
-              </div>
-
-              {(!isCollapsed || option.key === selected) && (
-                <motion.span
-                  className={`${isCollapsed ? "hidden" : "block"} ${
-                    option.key === selected
-                      ? "text-white font-medium ml-3"
-                      : "mt-2 text-slate-200 font-medium"
-                  } text-sm`}
-                  layout
-                >
-                  {option.key}
-                </motion.span>
-              )}
-
-              {option.key === selected && (
-                <motion.div
-                  className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-lg"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  layoutId="selectedDot"
-                >
-                  <span className={`${option.color} text-white text-xs`}>
-                    ✓
-                  </span>
-                </motion.div>
-              )}
-            </motion.button>
-          ))}
-        </motion.div>
-      </motion.div>
 
       {/* Template tooltip */}
       <AnimatePresence>
@@ -568,19 +683,6 @@ Threats
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Current template indicator (when collapsed) */}
-      {isCollapsed && (
-        <div className="px-3 pb-6 text-center">
-          <motion.div
-            className={`text-xs text-white ${selectedOption.color} p-1.5 rounded-md mx-auto`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            {selected.substring(0, 1)}
-          </motion.div>
-        </div>
-      )}
     </motion.aside>
   );
 }
