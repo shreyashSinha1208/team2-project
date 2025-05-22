@@ -311,6 +311,105 @@ Threats
     }
   };
 
+  // Get data input placeholder text based on selected template
+  const getDataInputPlaceholder = () => {
+    switch (selected) {
+      case "Timeline":
+        return `Format: year:event description
+
+Example:
+1945:World War II ended
+1969:First human landed on the Moon
+1989:Berlin Wall fell
+2001:September 11 attacks occurred
+2008:Global financial crisis began
+
+Enter your timeline data above...`;
+
+      case "Q&A":
+        return `Format: question?:answer
+
+Example:
+What is photosynthesis?:The process by which plants convert light into energy
+How do birds fly?:By flapping their wings to create lift and thrust
+Why is the sky blue?:Due to scattering of light by molecules in the atmosphere
+When did dinosaurs live?:Primarily during the Mesozoic Era, 252-66 million years ago
+
+Enter your Q&A pairs above...`;
+
+      case "List":
+        return `Format: Heading followed by items
+
+Example:
+Heading Fruits.
+Apple
+Banana
+Orange
+Mango
+Heading Vegetables.
+Carrot
+Broccoli
+Spinach
+Tomato
+
+Enter your list data above...`;
+
+      case "Hierarchy":
+        return `Format: Use indentation (2 spaces per level) to show parent-child relationships
+
+Example:
+Technology
+  Software
+    Web Development
+      HTML
+      CSS
+      JavaScript
+    Mobile Development
+      iOS
+      Android
+  Hardware
+    Processors
+    Memory
+
+Enter your hierarchy data above...`;
+
+      case "Swot":
+        return `Format: Four sections with numbered items
+
+Strengths
+1. High efficiency
+2. Strong team
+3. Good reputation
+
+Weaknesses
+1. Limited budget
+2. Small market share
+3. Outdated technology
+
+Opportunities
+1. Growing demand
+2. New markets
+3. Strategic partnerships
+
+Threats
+1. Strong competitors
+2. Economic downturn
+3. Regulatory changes
+
+Enter your SWOT analysis above...`;
+
+      case "Pro":
+        return `Enter your advanced data for professional analysis...
+
+You can use any format that suits your analysis needs.`;
+
+      default:
+        return `Enter your data here...
+
+The format will depend on your selected template.`;
+    }
+  };
+
   // Find the selected option
   const selectedOption =
     options.find((option) => option.key === selected) || options[0];
@@ -387,7 +486,7 @@ Threats
                 onClick={() => setActiveTab("templates")}
                 className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${
                   activeTab === "templates"
-                    ? "bg-indigo-600 text-white shadow-sm"
+                    ? "bg-[#0790E8] text-white shadow-sm"
                     : "text-slate-300 hover:text-white hover:bg-slate-700/50"
                 }`}
               >
@@ -398,7 +497,7 @@ Threats
                 onClick={() => setActiveTab("data")}
                 className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${
                   activeTab === "data"
-                    ? "bg-indigo-600 text-white shadow-sm"
+                    ? "bg-[#0790E8] text-white shadow-sm"
                     : "text-slate-300 hover:text-white hover:bg-slate-700/50"
                 }`}
               >
@@ -626,7 +725,7 @@ Threats
             <div className="px-6 pt-4 pb-2">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                  Data Input
+                  Data Input - {selected} Format
                 </h3>
                 <Database size={14} className="text-slate-500" />
               </div>
@@ -639,13 +738,7 @@ Threats
                   className="w-full h-full resize-none bg-transparent text-white placeholder-slate-400 focus:outline-none text-sm leading-relaxed"
                   value={manualInputText} // Use local state
                   onChange={(e) => handleManualInputChange(e.target.value)} // Handle changes
-                  placeholder={
-                    selected === "Swot"
-                      ? `Strengths\n1. High efficiency\n2. Strong team\n\nWeaknesses\n1. Limited budget\n2. Small market share\n\nOpportunities\n1. Growing demand\n2. New markets\n\nThreats\n1. Competitors\n2. Economic downturn`
-                      : selected === "Timeline"
-                      ? `1990: Event Description 1\n2000: Event Description 2`
-                      : `• item1\n• item2\n• item3\n...`
-                  }
+                  placeholder={getDataInputPlaceholder()}
                 />
               </div>
             </div>

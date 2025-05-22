@@ -2,12 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/app/store/store";
 import { setTimelineData } from "@/app/store/dataSlice";
-import {
-  useMotionValueEvent,
-  useScroll,
-  useTransform,
-  motion,
-} from "framer-motion";
+
 
 export default function TimelineGraph() {
   const dispatch = useDispatch();
@@ -51,15 +46,6 @@ export default function TimelineGraph() {
       setHeight(rect.height);
     }
   }, [ref]);
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start 10%", "end 50%"],
-  });
-
-  const heightTransform = useTransform(scrollYProgress, [0, 1], [0, height]);
-  const opacityTransform = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
-
   // Function to handle changes to an individual timeline entry's description
   const handleDescriptionChange = (index: number, newDescription: string) => {
     const updatedEntries = timelineEntries.map((entry, idx) => {
@@ -120,7 +106,7 @@ export default function TimelineGraph() {
     return (
       <div className="p-6 text-center text-gray-500 max-w-xl mx-auto">
         <p className="mb-4">No valid timeline data found. Add your first entry!</p>
-        <div className="flex flex-col gap-4 p-4 border rounded-md bg-white dark:bg-neutral-900 shadow-md">
+        <div className="flex flex-col gap-4 p-4 border rounded-md bg-white dark:bg-neutral-900 ">
           <input
             type="text"
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-800 dark:text-neutral-200"
@@ -136,7 +122,7 @@ export default function TimelineGraph() {
           />
           <button
             onClick={handleAddEntry}
-            className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-md"
+            className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             Add Entry
           </button>
@@ -194,13 +180,13 @@ export default function TimelineGraph() {
                 onChange={(e) => handleYearChange(index, e.target.value)}
               />
               <textarea
-                className="bg-white dark:bg-neutral-900 p-6 rounded-lg border-[1px] border-neutral-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300 w-full resize-y min-h-[80px] focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-neutral-300"
+                className="bg-white dark:bg-neutral-900 p-6 rounded-lg border-[1px] border-neutral-200 dark:border-neutral-700  transition-all duration-300 w-full resize-y min-h-[80px] focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-neutral-300"
                 value={item.description}
                 onChange={(e) => handleDescriptionChange(index, e.target.value)}
               />
               <button
                 onClick={() => handleDeleteEntry(index)}
-                className="mt-2 self-end px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors shadow-sm text-sm"
+                className="mt-2 self-end px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors text-sm"
               >
                 Delete
               </button>
@@ -209,7 +195,7 @@ export default function TimelineGraph() {
         ))}
 
         {/* Section for adding new entries */}
-        <div className="max-w-xl mx-auto mt-10 p-6 border rounded-2xl bg-white dark:bg-neutral-900 shadow-lg">
+        <div className="max-w-xl mx-auto mt-10 p-6 border rounded-2xl bg-white dark:bg-neutral-900">
           <h2 className="text-2xl font-bold text-center mb-6 text-gray-800 dark:text-white">Add New Timeline Entry</h2>
           <div className="flex flex-col gap-4">
             <input
