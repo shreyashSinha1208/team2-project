@@ -265,13 +265,17 @@ Threats
   };
 
   // Auto-open the prompt box when certain templates are selected
+  // This useEffect might be less relevant now that AI is in Data tab,
+  // but keeping it for now in case there's a specific flow intended.
   useEffect(() => {
     if (["Timeline", "Q&A", "List", "Hierarchy", "Swot"].includes(selected)) {
-      setShowPrompt(true);
+      // You might want to setActiveTab("data") here if the intent is to always
+      // switch to data tab when a templated chart is selected.
+      // setShowPrompt(true); // This would auto-open the AI prompt box
     }
   }, [selected]);
 
-  // Get placeholder text based on selected template
+  // Get placeholder text based on selected template (for AI prompt)
   const getPlaceholderText = () => {
     switch (selected) {
       case "Timeline":
@@ -289,7 +293,7 @@ Threats
     }
   };
 
-  // Get button text based on selected template
+  // Get button text based on selected template (for AI generate button)
   const getButtonText = () => {
     if (loading) {
       return "Generating...";
@@ -311,7 +315,7 @@ Threats
     }
   };
 
-  // Get data input placeholder text based on selected template
+  // Get data input placeholder text based on selected template (for manual input textarea)
   const getDataInputPlaceholder = () => {
     switch (selected) {
       case "Timeline":
@@ -519,96 +523,6 @@ The format will depend on your selected template.`;
             exit={{ opacity: 0, x: -20 }}
             className="flex-1 flex flex-col overflow-hidden"
           >
-            {/* AI Action Button */}
-            <div className="px-4 pt-3 pb-3">
-              <motion.button
-                onClick={() => setShowPrompt(!showPrompt)}
-                className="px-4 py-3 flex items-center justify-center gap-2 bg-gradient-to-r bg-[#0790e8] text-white rounded-xl shadow-lg shadow-indigo-900/30 font-medium transition-all w-full"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Sparkles size={18} className="text-white" />
-                <span>Generate with AI</span>
-              </motion.button>
-            </div>
-
-            {/* AI Prompt Box */}
-            <AnimatePresence>
-              {showPrompt && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden"
-                >
-                  <div className="px-4 py-4 space-y-3 bg-slate-900/80 mx-4 rounded-xl border border-slate-800 shadow-lg">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-indigo-300 flex items-center gap-2">
-                        <Sparkles size={14} className="text-indigo-400" />
-                        AI Assistant
-                      </span>
-                      <button
-                        onClick={() => setShowPrompt(false)}
-                        className="text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-800"
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
-
-                    <div className="relative">
-                      <textarea
-                        className="w-full p-3 border border-slate-700 rounded-lg bg-slate-800 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm resize-none"
-                        placeholder={getPlaceholderText()}
-                        value={prompt}
-                        onChange={(e) => setPrompt(e.target.value)}
-                        rows={3}
-                      />
-                      <motion.button
-                        onClick={handleAIClick}
-                        className="absolute bottom-2 right-2 bg-indigo-600 text-white rounded-full p-2 hover:bg-indigo-500"
-                        disabled={loading}
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        {loading ? (
-                          <Loader2 size={16} className="animate-spin" />
-                        ) : (
-                          <Send size={16} />
-                        )}
-                      </motion.button>
-                    </div>
-
-                    <motion.button
-                      onClick={handleAIClick}
-                      className={`w-full flex items-center justify-center gap-2 bg-gradient-to-r ${
-                        selectedOption.gradientFrom
-                      } ${
-                        selectedOption.gradientTo
-                      } text-white px-4 py-3 rounded-lg font-medium shadow-md shadow-slate-900/40 ${
-                        loading ? "opacity-70 cursor-not-allowed" : ""
-                      }`}
-                      disabled={loading}
-                      whileHover={{ scale: loading ? 1 : 1.02 }}
-                      whileTap={{ scale: loading ? 1 : 0.98 }}
-                    >
-                      {loading && <Loader2 size={16} className="animate-spin" />}
-                      {getButtonText()}
-                    </motion.button>
-
-                    {error && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="p-3 bg-red-900/30 border border-red-800 rounded-lg text-sm text-red-200"
-                      >
-                        {error}
-                      </motion.div>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
             {/* Search / Filter */}
             <div className="px-6 pt-4 pb-2">
               <div className="relative">
@@ -730,6 +644,96 @@ The format will depend on your selected template.`;
                 <Database size={14} className="text-slate-500" />
               </div>
             </div>
+
+            {/* AI Action Button */}
+            <div className="px-4 pt-3 pb-3">
+              <motion.button
+                onClick={() => setShowPrompt(!showPrompt)}
+                className="px-4 py-3 flex items-center justify-center gap-2 bg-gradient-to-r bg-[#0790e8] text-white rounded-xl shadow-lg shadow-indigo-900/30 font-medium transition-all w-full"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Sparkles size={18} className="text-white" />
+                <span>Generate with AI</span>
+              </motion.button>
+            </div>
+
+            {/* AI Prompt Box */}
+            <AnimatePresence>
+              {showPrompt && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="px-4 py-4 space-y-3 bg-slate-900/80 mx-4 rounded-xl border border-slate-800 shadow-lg">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-indigo-300 flex items-center gap-2">
+                        <Sparkles size={14} className="text-indigo-400" />
+                        AI Assistant
+                      </span>
+                      <button
+                        onClick={() => setShowPrompt(false)}
+                        className="text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-800"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+
+                    <div className="relative">
+                      <textarea
+                        className="w-full p-3 border border-slate-700 rounded-lg bg-slate-800 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm resize-none"
+                        placeholder={getPlaceholderText()}
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                        rows={3}
+                      />
+                      <motion.button
+                        onClick={handleAIClick}
+                        className="absolute bottom-2 right-2 bg-indigo-600 text-white rounded-full p-2 hover:bg-indigo-500"
+                        disabled={loading}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        {loading ? (
+                          <Loader2 size={16} className="animate-spin" />
+                        ) : (
+                          <Send size={16} />
+                        )}
+                      </motion.button>
+                    </div>
+
+                    <motion.button
+                      onClick={handleAIClick}
+                      className={`w-full flex items-center justify-center gap-2 bg-gradient-to-r ${
+                        selectedOption.gradientFrom
+                      } ${
+                        selectedOption.gradientTo
+                      } text-white px-4 py-3 rounded-lg font-medium shadow-md shadow-slate-900/40 ${
+                        loading ? "opacity-70 cursor-not-allowed" : ""
+                      }`}
+                      disabled={loading}
+                      whileHover={{ scale: loading ? 1 : 1.02 }}
+                      whileTap={{ scale: loading ? 1 : 0.98 }}
+                    >
+                      {loading && <Loader2 size={16} className="animate-spin" />}
+                      {getButtonText()}
+                    </motion.button>
+
+                    {error && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="p-3 bg-red-900/30 border border-red-800 rounded-lg text-sm text-red-200"
+                      >
+                        {error}
+                      </motion.div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Data Input Textarea */}
             <div className="flex-1 px-4 pt-2 pb-6 overflow-hidden">
