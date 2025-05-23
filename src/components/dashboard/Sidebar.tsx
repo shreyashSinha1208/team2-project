@@ -100,6 +100,22 @@ const options: TemplateOption[] = [
     gradientFrom: "from-sky-400",
     gradientTo: "to-sky-600",
   },
+  {
+    key: "Procedure Diagram",
+    icon: Sparkles,
+    description: "Analyze sentiment and emotion in text",
+    color: "bg-amber-500",
+    gradientFrom: "from-amber-400",
+    gradientTo: "to-amber-600",
+  },
+  {
+    key: "Concept Mapper",
+    icon: Zap,
+    description: "Visualize cyclical processes and data",
+    color: "bg-emerald-500",
+    gradientFrom: "from-emerald-400",
+    gradientTo: "to-emerald-600",
+  },
 ];
 
 export default function TemplateSidebar({
@@ -219,6 +235,34 @@ Opportunities
 Threats
 1. Competitors
 2. Economic downturn`;
+      case "Concept Mapper":
+        return `You are a concept mapping data generator. When given a topic, generate a concept map in plain text format using labeled nodes and their directional relationships. Represent nodes with text labels and connections with arrows using the format "Source -> Target". Each relationship must be on a separate line. If a node has no outgoing connections, list it as a single label on a new line. Do not include any titles, explanations, or formatting other than plain text. Be precise and concise. Ensure all leading spaces are trimmed. Example format:
+
+Main Idea
+Main Idea -> Sub Idea 1
+Main Idea -> Sub Idea 2
+Sub Idea 1 -> Detail 1
+Sub Idea 1 -> Detail 2
+Sub Idea 2
+Detail 1
+Detail 2
+`;
+      case "Procedure Diagram":
+        return `You are a procedure diagram data generator. When given a topic, generate a step-by-step procedure in plain text format. Each step should be on a new line, and you can use indentation to show sub-steps. Do not include any titles, explanations, or formatting other than plain text. Be precise and concise. Ensure all leading spaces are trimmed. Example format:
+Gather Materials
+List all tools and items needed to begin the procedure. Ensure availability before starting.
+
+Prepare Workspace
+Clean and organize the area. Set up any necessary equipment.
+
+Start the Process
+Follow the instructions to begin the task. Double-check settings.
+
+Verify Results
+Check output for correctness. Document any errors or inconsistencies.
+
+Cleanup
+Shut down all equipment safely and return materials to storage.`;
 
       default:
         return `You are a teacher. Provide clear and explanatory answers. Ensure all leading spaces are trimmed and avoid unnecessary details.`;
@@ -268,7 +312,15 @@ Threats
 
       // Pass the generated data to parent component if we're in a templated mode
       if (
-        ["Timeline", "Q&A", "List", "Hierarchy", "Swot"].includes(selected) &&
+        [
+          "Timeline",
+          "Q&A",
+          "List",
+          "Hierarchy",
+          "Swot",
+          "Procedure Diagram",
+          "Concept Mapper",
+        ].includes(selected) &&
         aiReply &&
         onDataGenerated
       ) {
@@ -292,7 +344,17 @@ Threats
   // This useEffect might be less relevant now that AI is in Data tab,
   // but keeping it for now in case there's a specific flow intended.
   useEffect(() => {
-    if (["Timeline", "Q&A", "List", "Hierarchy", "Swot"].includes(selected)) {
+    if (
+      [
+        "Timeline",
+        "Q&A",
+        "List",
+        "Hierarchy",
+        "Swot",
+        "Procedure Diagram",
+        "Concept Mapper",
+      ].includes(selected)
+    ) {
       // You might want to setActiveTab("data") here if the intent is to always
       // switch to data tab when a templated chart is selected.
       // setShowPrompt(true); // This would auto-open the AI prompt box
@@ -312,6 +374,10 @@ Threats
         return "Enter a topic for hierarchy generation (e.g., animal classification, company structure)...";
       case "Swot":
         return "Enter a topic for SWOT analysis (e.g., business expansion, product launch)...";
+      case "Concept Mapper":
+        return "Enter a topic for Concept Mapper here (e.g., business expansion, product launch)...";
+      case "Procedure Diagram":
+        return "Enter a topic for Procedure Diagram here (e.g., business expansion, product launch)...";
       default:
         return "Enter your prompt...";
     }
@@ -334,6 +400,10 @@ Threats
         return "Generate Hierarchy";
       case "Swot":
         return "Generate SWOT Analysis";
+      case "Concept Mapper":
+        return "Generate Concept Map";
+      case "Procedure Diagram":
+        return "Generate Procedure Diagram";
       default:
         return "Ask AI";
     }
@@ -430,7 +500,43 @@ Enter your SWOT analysis above...`;
         return `Enter your advanced data for professional analysis...
 
 You can use any format that suits your analysis needs.`;
+      case "Concept Mapper":
+        return `Format: Use arrows to show relationships
 
+Example:
+Renewable Energy
+Renewable Energy -> Solar Power
+Renewable Energy -> Wind Energy
+Renewable Energy -> Hydropower
+Solar Power -> Photovoltaic Cells
+Solar Power -> Solar Thermal Systems
+Wind Energy -> Turbines
+Hydropower -> Dams
+Photovoltaic Cells
+Solar Thermal Systems
+Turbines
+Dams
+
+Enter your Concept Mapper data above...`;
+
+      case "Procedure Diagram":
+        return `Format: Use line spaces to show blocks
+Example:Gather Materials
+List all tools and items needed to begin the procedure. Ensure availability before starting.
+
+Prepare Workspace
+Clean and organize the area. Set up any necessary equipment.
+
+Start the Process
+Follow the instructions to begin the task. Double-check settings.
+
+Verify Results
+Check output for correctness. Document any errors or inconsistencies.
+
+Cleanup
+Shut down all equipment safely and return materials to storage.
+
+      Enter your Procedure Diagram here...`;
       default:
         return `Enter your data here...
 

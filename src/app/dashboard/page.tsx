@@ -200,6 +200,24 @@ export default function DashboardPage() {
           hoverBg: "hover:bg-sky-100",
           lightBg: "bg-sky-50"
         };
+      case "Concept Mapper":
+        return {
+          gradient: "from-pink-400 to-pink-600",
+          accent: "bg-pink-500",
+          text: "text-pink-500",
+          border: "border-pink-500",
+          hoverBg: "hover:bg-pink-100",
+          lightBg: "bg-pink-50"
+        };
+      case "Procedure Diagram":
+        return {
+          gradient: "from-teal-400 to-teal-600",
+          accent: "bg-teal-500",
+          text: "text-teal-500",
+          border: "border-teal-500",
+          hoverBg: "hover:bg-teal-100",
+          lightBg: "bg-teal-50"
+        };
       default: // Added cases for Bar Chart, Pie Chart, Line Chart for consistent theming
         return {
           gradient: "from-blue-400 to-blue-600",
@@ -372,18 +390,6 @@ export default function DashboardPage() {
           </motion.div>
         </div>
       </div>
-
-      {/* Mobile Data/Chart Toggle Button - Fixed at bottom right - REMOVED */}
-      {/* <div className="md:hidden fixed bottom-6 right-6 z-40">
-        <motion.button
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setActiveView(activeView === "data" ? "chart" : "data")}
-          className={`w-16 h-16 rounded-full bg-gradient-to-r ${colors.gradient} text-white shadow-xl flex items-center justify-center text-2xl`}
-        >
-          {activeView === "data" ? <BarChart3 size={28} /> : <ListFilter size={28} />}
-        </motion.button>
-      </div> */}
     </div>
   );
 }

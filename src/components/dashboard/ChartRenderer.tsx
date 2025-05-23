@@ -2,7 +2,8 @@
 
 import React from "react";
 import dynamic from "next/dynamic";
-
+const ConceptMapper = dynamic(() => import("../charts/ConceptMapper"), {ssr: false,});
+const ProcedureDiagram = dynamic(() => import("../charts/ProcedureDiagram"), { ssr: false });
 
 const HierarchyTree = dynamic(() => import("../charts/HierarchyTree"), {
   ssr: false,
@@ -53,11 +54,9 @@ function parseIndentedTextToTree(text: string) {
 
 
 export default function ChartRenderer({ template, rawData }: Props) {
-  const listItems = rawData.split("\n").filter(Boolean);
-  console.log("Raw data received:", rawData);
 
   let json: any = null;
-  if (["Bar Chart", "Pie Chart", "Line Chart"].includes(template)) {
+  if (["Bar Chart", "Pie Chart", "Line Chart", "Concept Mapper", "Map"].includes(template)) {
     try {
       json = JSON.parse(rawData);
     } catch (err) {
@@ -95,7 +94,13 @@ export default function ChartRenderer({ template, rawData }: Props) {
       return <ListView/>;
 
     case "Q&A":
-      return <QnAView items={listItems} />;
+      return <QnAView />;
+    
+     case "Concept Mapper":
+      return <ConceptMapper data={rawData} />;
+
+    case "Procedure Diagram":
+      return <ProcedureDiagram data={rawData} />;
 
     case "Timeline":
       // TimelineGraph now gets its data from the Redux store, so no 'data' prop is passed here.
