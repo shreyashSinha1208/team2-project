@@ -1,9 +1,10 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface SWOTState {
-  items: string[];        // Existing SWOT items
-  timelineData: string;   // Timeline data
-  listViewData: string;   // Corrected: List view data should be a string
+  items: string[];
+  timelineData: string;
+  listViewData: string;
+  qnaData: string[]; // Correct type
 }
 
 const initialState: SWOTState = {
@@ -18,7 +19,8 @@ const initialState: SWOTState = {
     2020: Celebrated 30 years in business
     2025: Planned future innovations
   `,
-  listViewData: '', // ✅ Properly initialized
+  listViewData: '',
+  qnaData: [],
 };
 
 const swotSlice = createSlice({
@@ -40,9 +42,35 @@ const swotSlice = createSlice({
     setListViewData(state, action: PayloadAction<string>) {
       state.listViewData = action.payload;
     },
+
+    // QnA Actions
+    setQnAData(state, action: PayloadAction<string[]>) {
+      state.qnaData = action.payload;
+    },
+    addQnAItem(state, action: PayloadAction<string>) {
+      state.qnaData.push(action.payload);
+    },
+    editQnAItem(state, action: PayloadAction<{ index: number; newValue: string }>) {
+      if (state.qnaData[action.payload.index]) {
+        state.qnaData[action.payload.index] = action.payload.newValue;
+      }
+    },
+    deleteQnAItem(state, action: PayloadAction<number>) {
+      state.qnaData.splice(action.payload, 1);
+    },
   },
 });
 
-// ✅ Also export setListViewData
-export const { setItems, addItem, clearItems, setTimelineData, setListViewData } = swotSlice.actions;
+export const {
+  setItems,
+  addItem,
+  clearItems,
+  setTimelineData,
+  setListViewData,
+  setQnAData,
+  addQnAItem,
+  editQnAItem,
+  deleteQnAItem
+} = swotSlice.actions;
+
 export default swotSlice.reducer;

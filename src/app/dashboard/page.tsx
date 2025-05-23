@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { setItems, setTimelineData, setListViewData } from "../store/dataSlice"; // Import setTimelineData
+import { setItems, setTimelineData, setListViewData, setQnAData } from "../store/dataSlice"; // Import setTimelineData
 import { Inter } from "next/font/google";
 const inter = Inter({
   subsets: ["latin"],
@@ -105,6 +105,9 @@ export default function DashboardPage() {
       dispatch(setTimelineData(data)); // Dispatch to Redux for Timeline
     } else if (template === "List") {
       dispatch(setListViewData(data)); // Dispatch to Redux for List
+    } else if (template === "Q&A") {
+      const qnaLines = data.split('\n').map(line => line.trim()).filter(Boolean);
+      dispatch(setQnAData(qnaLines)); // Dispatch to Redux for Q&A
     }
     else {
       setRawData(data); // For other templates that still use rawData prop
