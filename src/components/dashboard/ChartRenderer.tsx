@@ -16,6 +16,7 @@ const TimelineGraph = dynamic(() => import("../charts/TimelineGraph"), {
   ssr: false,
 });
 const SwotView = dynamic(() => import("../charts/SwotView"), {ssr: false,});
+const FlashcardView = dynamic(() => import("../charts/FlashcardView"), {ssr: false,});
 
 
 import { TreeNode, ChartJsData } from "../types";
@@ -103,6 +104,9 @@ export default function ChartRenderer({ template, rawData }: Props) {
 
     case "Swot":
       return <SwotView />;
+
+    case "Flashcard":
+      return <FlashcardView />;
 
     default:
       return <p className="text-center text-gray-500">Select a template</p>;

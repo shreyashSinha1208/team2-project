@@ -3,7 +3,8 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface SWOTState {
   items: string[];        // Existing SWOT items
   timelineData: string;   // Timeline data
-  listViewData: string;   // Corrected: List view data should be a string
+  listViewData: string;   // List view data
+  flashcardData: string;  // Flashcard data
 }
 
 const initialState: SWOTState = {
@@ -18,7 +19,13 @@ const initialState: SWOTState = {
     2020: Celebrated 30 years in business
     2025: Planned future innovations
   `,
-  listViewData: '', // ✅ Properly initialized
+  listViewData: '',
+  flashcardData: `
+    What is React?:A JavaScript library for building user interfaces
+    What is JSX?:A syntax extension for JavaScript that allows writing HTML-like code
+    What is a Component?:A reusable piece of UI that can accept props and manage state
+    What is State?:An object that holds data that may change over time in a component
+  `,
 };
 
 const swotSlice = createSlice({
@@ -40,9 +47,19 @@ const swotSlice = createSlice({
     setListViewData(state, action: PayloadAction<string>) {
       state.listViewData = action.payload;
     },
+    setFlashcardData(state, action: PayloadAction<string>) {
+      state.flashcardData = action.payload;
+    },
   },
 });
 
-// ✅ Also export setListViewData
-export const { setItems, addItem, clearItems, setTimelineData, setListViewData } = swotSlice.actions;
+export const { 
+  setItems, 
+  addItem, 
+  clearItems, 
+  setTimelineData, 
+  setListViewData,
+  setFlashcardData 
+} = swotSlice.actions;
+
 export default swotSlice.reducer;

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux"; // Import useDispatch and useSelector
 import { RootState } from "@/app/store/store"; // Import RootState
-import { setItems, setTimelineData, setListViewData } from "@/app/store/dataSlice"; // Import Redux actions
+import { setItems, setTimelineData, setListViewData, setFlashcardData } from "@/app/store/dataSlice"; // Import Redux actions
 
 import {
   Grid,
@@ -26,6 +26,7 @@ import {
   Zap,
   FileText,
   Database,
+  Book,
 } from "lucide-react";
 import { set } from "date-fns";
 
@@ -95,6 +96,14 @@ const options: TemplateOption[] = [
     gradientFrom: "from-sky-400",
     gradientTo: "to-sky-600",
   },
+  {
+    key: "Flashcard",
+    icon: Book,
+    description: "Interactive flashcards with front/back design",
+    color: "bg-purple-500",
+    gradientFrom: "from-purple-400",
+    gradientTo: "to-purple-600",
+  },
 ];
 
 export default function TemplateSidebar({
@@ -111,6 +120,9 @@ export default function TemplateSidebar({
   );
   const listViewReduxData = useSelector(
     (state: RootState) => state.swot.listViewData
+  );
+  const flashcardData = useSelector(
+    (state: RootState) => state.swot.flashcardData
   );
 
   const [showPrompt, setShowPrompt] = useState(false);
@@ -138,13 +150,14 @@ export default function TemplateSidebar({
         setManualInputText(timelineReduxData);
       } else if (selected === "List") {
         setManualInputText(listViewReduxData);
-      }
-      else {
+      } else if (selected === "Flashcard") {
+        setManualInputText(flashcardData);
+      } else {
         // For other templates, use the currentRawData passed from DashboardPage
         setManualInputText(currentRawData);
       }
     }
-  }, [activeTab, selected, swotItems, timelineReduxData, listViewReduxData, currentRawData]);
+  }, [activeTab, selected, swotItems, timelineReduxData, listViewReduxData, currentRawData, flashcardData]);
 
   // Filtered options based on search input
   const filteredOptions = options.filter(
@@ -204,6 +217,13 @@ Threats
 1. Competitors
 2. Economic downturn`;
 
+      case "Flashcard":
+        return `You are a flashcard generator. When given a topic, generate a series of flashcards in the format "front:back" with each card on a new line. The front should contain a concise question or concept, and the back should contain a clear, brief explanation. Focus on key concepts and provide 5-10 cards. Only provide the raw data in the front:back format, with no introduction or explanation. Ensure all leading spaces are trimmed. Be precise and concise. Example format:
+What is React?:A JavaScript library for building user interfaces
+What is JSX?:A syntax extension for JavaScript
+What is a Component?:A reusable piece of UI
+What is State?:An object that holds data that may change`;
+
       default:
         return `You are a teacher. Provide clear and explanatory answers. Ensure all leading spaces are trimmed and avoid unnecessary details.`;
     }
@@ -251,13 +271,22 @@ Threats
       setResponse(aiReply || "No response from AI.");
 
       // Pass the generated data to parent component if we're in a templated mode
-      if (
-        ["Timeline", "Q&A", "List", "Hierarchy", "Swot"].includes(selected) &&
-        aiReply &&
-        onDataGenerated
-      ) {
-        onDataGenerated(aiReply);
-        // Also update the manual input text with AI response
+      if (aiReply) {
+        if (selected === "Swot") {
+          const lines = aiReply
+            .split("\n")
+            .map((line: string) => line.trim())
+            .filter(Boolean);
+          dispatch(setItems(lines));
+        } else if (selected === "Timeline") {
+          dispatch(setTimelineData(aiReply));
+        } else if (selected === "List") {
+          dispatch(setListViewData(aiReply));
+        } else if (selected === "Flashcard") {
+          dispatch(setFlashcardData(aiReply));
+        }
+
+        // Update manual input text with AI response
         setManualInputText(aiReply);
         // Auto-hide the prompt box after successful generation
         setTimeout(() => setShowPrompt(false), 1000);
@@ -276,7 +305,7 @@ Threats
   // This useEffect might be less relevant now that AI is in Data tab,
   // but keeping it for now in case there's a specific flow intended.
   useEffect(() => {
-    if (["Timeline", "Q&A", "List", "Hierarchy", "Swot"].includes(selected)) {
+    if (["Timeline", "Q&A", "List", "Hierarchy", "Swot", "Flashcard"].includes(selected)) {
       // You might want to setActiveTab("data") here if the intent is to always
       // switch to data tab when a templated chart is selected.
       // setShowPrompt(true); // This would auto-open the AI prompt box
@@ -296,6 +325,8 @@ Threats
         return "Enter a topic for hierarchy generation (e.g., animal classification, company structure)...";
       case "Swot":
         return "Enter a topic for SWOT analysis (e.g., business expansion, product launch)...";
+      case "Flashcard":
+        return "Enter a topic for flashcard generation (e.g., React concepts, JavaScript fundamentals)...";
       default:
         return "Enter your prompt...";
     }
@@ -318,6 +349,8 @@ Threats
         return "Generate Hierarchy";
       case "Swot":
         return "Generate SWOT Analysis";
+      case "Flashcard":
+        return "Generate Flashcards";
       default:
         return "Ask AI";
     }
@@ -410,6 +443,17 @@ Threats
 
 Enter your SWOT analysis above...`;
 
+      case "Flashcard":
+        return `Format: front:back description
+
+Example:
+What is React?:A JavaScript library for building user interfaces
+What is JSX?:A syntax extension for JavaScript
+What is a Component?:A reusable piece of UI
+What is State?:An object that holds data that may change
+
+Enter your flashcard data above...`;
+
       case "Pro":
         return `Enter your advanced data for professional analysis...
 
@@ -440,6 +484,8 @@ The format will depend on your selected template.`;
       dispatch(setTimelineData(value))
     } else if (selected === "List") {
       dispatch(setListViewData(value));
+    } else if (selected === "Flashcard") {
+      dispatch(setFlashcardData(value));
     } else if (onManualDataChange) {
       // For other templates, pass the value up to DashboardPage
       onManualDataChange(value);
@@ -564,7 +610,8 @@ The format will depend on your selected template.`;
             </div>
 
             {/* Template options */}
-            <div className="flex-1 px-4 pt-2 pb-6 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+            <div className="flex-1 px-4 pt-2 pb-6 overflow-y-scroll scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+              <div className=" h-[100vh]">
               <div className="grid grid-cols-2 gap-3">
                 {filteredOptions.map((option) => (
                   <motion.button
@@ -579,14 +626,14 @@ The format will depend on your selected template.`;
                           : "bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60"
                       } 
                       transition-all duration-300`}
-                    whileHover={{
-                      scale: 1.03,
-                      boxShadow:
-                        option.key !== selected
-                          ? "0 4px 12px rgba(0, 0, 0, 0.1)"
-                          : "",
-                    }}
+                    initial={false}
+                    whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 400,
+                      damping: 17
+                    }}
                     onMouseEnter={() => {
                       setTooltipContent(option);
                       setShowTooltip(true);
@@ -604,9 +651,7 @@ The format will depend on your selected template.`;
                     >
                       <option.icon
                         size={26}
-                        className={`${
-                          option.key === selected ? "text-white" : "text-white"
-                        }`}
+                        className={option.key === selected ? "text-white" : "text-white"}
                       />
                     </div>
 
@@ -635,6 +680,7 @@ The format will depend on your selected template.`;
                     )}
                   </motion.button>
                 ))}
+              </div>
               </div>
             </div>
           </motion.div>
