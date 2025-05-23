@@ -5,6 +5,7 @@ interface ChartData {
   timeline: string;
   list: string[];
   hierarchy: string;
+  conceptMapper: string;
 }
 
 interface ChartsState {
@@ -20,6 +21,7 @@ const initialState: ChartsState = {
     timeline: '',
     list: [],
     hierarchy: '',
+    conceptMapper: '',
   },
   loading: false,
   error: null,
@@ -45,6 +47,9 @@ const chartsSlice = createSlice({
     setHierarchyData: (state, action: PayloadAction<string>) => {
       state.data.hierarchy = action.payload;
     },
+    setConceptMapperData: (state, action: PayloadAction<string>) => {
+      state.data.conceptMapper = action.payload;
+    },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
     },
@@ -60,6 +65,7 @@ export const {
   setTimelineData,
   setListData,
   setHierarchyData,
+  setConceptMapperData,
   setLoading,
   setError,
 } = chartsSlice.actions;

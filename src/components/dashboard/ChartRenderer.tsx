@@ -17,6 +17,8 @@ const TimelineGraph = dynamic(() => import("../charts/TimelineGraph"), {
   ssr: false,
 });
 const SwotView = dynamic(() => import("../charts/SwotView"), {ssr: false,});
+const ConceptMapper = dynamic(() => import("../charts/ConceptMapper"), {ssr: false,});
+const ProcedureDiagram = dynamic(() => import("../charts/ProcedureDiagram"), { ssr: false });
 
 import { TreeNode, ChartJsData } from "../types";
 
@@ -62,8 +64,9 @@ export default function ChartRenderer({ template, rawData }: Props) {
   
   const listItems = rawData.split("\n").filter(Boolean);
   
+  // Update the JSON parsing condition to include "Map"
   let json: any = null;
-  if (["Bar Chart", "Pie Chart", "Line Chart"].includes(template)) {
+  if (["Bar Chart", "Pie Chart", "Line Chart", "Concept Mapper", "Map"].includes(template)) {
     try {
       json = JSON.parse(rawData);
     } catch (err) {
@@ -108,6 +111,15 @@ export default function ChartRenderer({ template, rawData }: Props) {
 
     case "Swot":
       return <SwotView />;
+      
+    case "Concept Mapper":
+      return <ConceptMapper data={rawData} />;
+      
+    case "Map":
+      return <ConceptMapper data={rawData} />;
+
+    case "Procedure Diagram":
+      return <ProcedureDiagram data={rawData} />;
 
     default:
       return <p className="text-center text-gray-500">Select a template</p>;

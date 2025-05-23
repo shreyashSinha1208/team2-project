@@ -38,53 +38,70 @@ interface TemplateOption {
 }
 
 const options: TemplateOption[] = [
-  { 
-    key: "Hierarchy", 
-    icon: Grid, 
-    description: "Organize data in parent-child relationships", 
+  {
+    key: "Hierarchy",
+    icon: Grid,
+    description: "Organize data in parent-child relationships",
     color: "bg-indigo-500",
     gradientFrom: "from-indigo-400",
-    gradientTo: "to-indigo-600" 
+    gradientTo: "to-indigo-600",
   },
-  { 
-    key: "Timeline", 
-    icon: Clock, 
-    description: "Visualize events in chronological order", 
+  {
+    key: "Timeline",
+    icon: Clock,
+    description: "Visualize events in chronological order",
     color: "bg-violet-500",
     gradientFrom: "from-violet-400",
-    gradientTo: "to-violet-600" 
+    gradientTo: "to-violet-600",
   },
-  { 
-    key: "List", 
-    icon: List, 
-    description: "Display data in structured lists with headings", 
+  {
+    key: "List",
+    icon: List,
+    description: "Display data in structured lists with headings",
     color: "bg-emerald-500",
     gradientFrom: "from-emerald-400",
-    gradientTo: "to-emerald-600" 
+    gradientTo: "to-emerald-600",
   },
-  { 
-    key: "Q&A", 
-    icon: MessageCircle, 
-    description: "Present information in question-answer format", 
+  {
+    key: "Q&A",
+    icon: MessageCircle,
+    description: "Present information in question-answer format",
     color: "bg-amber-500",
     gradientFrom: "from-amber-400",
-    gradientTo: "to-amber-600" 
+    gradientTo: "to-amber-600",
   },
-  { 
-    key: "Pro", 
-    icon: Star, 
-    description: "Advanced visualization and analysis", 
+  {
+    key: "Map",
+    icon: MessageCircle,
+    description: "Present information in question-answer format",
+    color: "bg-amber-500",
+    gradientFrom: "from-amber-400",
+    gradientTo: "to-amber-600",
+  },
+  {
+    key: "Pro",
+    icon: Star,
+    description: "Advanced visualization and analysis",
     color: "bg-rose-500",
     gradientFrom: "from-rose-400",
-    gradientTo: "to-rose-600" 
+    gradientTo: "to-rose-600",
   },
-  { 
-    key: "Swot", 
-    icon: Layout, 
-    description: "Strengths, Weaknesses, Opportunities, Threats", 
+  {
+    key: "Swot",
+    icon: Layout,
+    description: "Strengths, Weaknesses, Opportunities, Threats",
     color: "bg-sky-500",
     gradientFrom: "from-sky-400",
-    gradientTo: "to-sky-600" 
+    gradientTo: "to-sky-600",
+  },
+  {
+    key: "Procedure Diagram",
+    icon: Layout,
+    description:
+      "Step-by-step process visualization with clean layout and professional design.",
+    color: "bg-blue-500",
+    gradientFrom: "from-blue-400",
+    gradientTo: "to-blue-600",
   },
 ];
 
@@ -101,12 +118,15 @@ export default function TemplateSidebar({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [filterText, setFilterText] = useState("");
   const [showTooltip, setShowTooltip] = useState(false);
-  const [tooltipContent, setTooltipContent] = useState<TemplateOption | null>(null);
+  const [tooltipContent, setTooltipContent] = useState<TemplateOption | null>(
+    null
+  );
 
   // Filtered options based on search input
-  const filteredOptions = options.filter(option => 
-    option.key.toLowerCase().includes(filterText.toLowerCase()) ||
-    option.description.toLowerCase().includes(filterText.toLowerCase())
+  const filteredOptions = options.filter(
+    (option) =>
+      option.key.toLowerCase().includes(filterText.toLowerCase()) ||
+      option.description.toLowerCase().includes(filterText.toLowerCase())
   );
 
   // System prompt changes based on selected template
@@ -123,8 +143,20 @@ bello
 Heading 2 format(heading text should be present before the actual heading)`;
       case "Hierarchy":
         return `You are a hierarchy data generator. When given a topic, create a hierarchical structure of concepts using indentation to show parent-child relationships. Items at the same indentation level have the same parent. Each level of indentation should use two additional spaces. Only provide the raw hierarchical data with proper indentation, with no introduction or explanation.`;
+      case "Map":
+        return `You are a mind map data generator. When given a main concept, create a structured mind map using the format "Concept -> Subconcept". Start with the main concept and expand into sub-concepts and details.
+
+Each line must represent a direct relationship in the form "Parent -> Child".
+
+Use at least three levels:
+- Main Concept → Sub Concept
+- Sub Concept → Detailed Concept
+
+Only output raw data in this arrow format. Do not include any explanations, lists, or extra formatting.`;
       case "Swot":
         return `You are a list data generator with 4 title [Strengths,Weekness,Opportunities,Threats]. When given a topic, create list on the 4 title above. Provide all the 4 title above, followed by list items with numbers on separate lines. Only provide the raw data in this format, with no introduction or explanation.`;
+        case "Procedure Diagram":
+          return `You are a step-by-step procedure generator. When given a topic, generate 4 to 6 sequential steps. Each step must have a title on one line immediately followed on the next line by a description starting with "Description:" with no blank lines or spaces between them. There should be exactly one blank line after each step. Do not add any blank lines or leading spaces before titles or descriptions. Provide only the raw output with no introduction or explanation.`;
       default:
         return `You are a teacher. Give answers in an explanatory way`;
     }
@@ -173,7 +205,15 @@ Heading 2 format(heading text should be present before the actual heading)`;
 
       // Pass the generated data to parent component if we're in a templated mode
       if (
-        ["Timeline", "Q&A", "List", "Hierarchy", "Swot"].includes(selected) &&
+        [
+          "Timeline",
+          "Q&A",
+          "List",
+          "Hierarchy",
+          "Swot",
+          "Map",
+          "Procedure Diagram",
+        ].includes(selected) &&
         aiReply &&
         onDataGenerated
       ) {
@@ -193,7 +233,17 @@ Heading 2 format(heading text should be present before the actual heading)`;
 
   // Auto-open the prompt box when certain templates are selected
   useEffect(() => {
-    if (["Timeline", "Q&A", "List", "Hierarchy", "Swot"].includes(selected)) {
+    if (
+      [
+        "Timeline",
+        "Q&A",
+        "List",
+        "Hierarchy",
+        "Swot",
+        "Map",
+        "Procedure Diagram",
+      ].includes(selected)
+    ) {
       setShowPrompt(true);
     }
   }, [selected]);
@@ -211,6 +261,8 @@ Heading 2 format(heading text should be present before the actual heading)`;
         return "Enter a topic for hierarchy generation (e.g., animal classification, company structure)...";
       case "Swot":
         return "Enter a topic for SWOT analysis (e.g., business expansion, product launch)...";
+      case "Concept Mapper":
+        return "Enter a topic for concept mapping...";
       default:
         return "Enter your prompt...";
     }
@@ -221,7 +273,7 @@ Heading 2 format(heading text should be present before the actual heading)`;
     if (loading) {
       return "Generating...";
     }
-    
+
     switch (selected) {
       case "Timeline":
         return "Generate Timeline";
@@ -233,20 +285,25 @@ Heading 2 format(heading text should be present before the actual heading)`;
         return "Generate Hierarchy";
       case "Swot":
         return "Generate SWOT Analysis";
+      case "Concept Mapper":
+        return "Generate Concept Map";
       default:
         return "Ask AI";
     }
   };
 
   // Find the selected option
-  const selectedOption = options.find(option => option.key === selected) || options[0];
+  const selectedOption =
+    options.find((option) => option.key === selected) || options[0];
 
   return (
     <motion.aside
       initial={{ width: 320 }}
       animate={{ width: isCollapsed ? 80 : 320 }}
       transition={{ type: "spring", stiffness: 500, damping: 30 }}
-      className={`${isCollapsed ? "w-20" : "w-80"} flex flex-col bg-slate-950 h-screen overflow-hidden relative border-r border-slate-800 shadow-xl`}
+      className={`${
+        isCollapsed ? "w-20" : "w-80"
+      } flex flex-col bg-slate-950 h-screen overflow-hidden relative border-r border-slate-800 shadow-xl`}
     >
       {/* Gradient overlay at the top */}
       <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-indigo-900/30 to-transparent pointer-events-none z-0"></div>
@@ -257,7 +314,11 @@ Heading 2 format(heading text should be present before the actual heading)`;
         onClick={() => setIsCollapsed(!isCollapsed)}
         whileTap={{ scale: 0.9 }}
       >
-        {isCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+        {isCollapsed ? (
+          <PanelLeftOpen size={18} />
+        ) : (
+          <PanelLeftClose size={18} />
+        )}
       </motion.button>
 
       {/* Top nav */}
@@ -279,10 +340,16 @@ Heading 2 format(heading text should be present before the actual heading)`;
       </motion.div>
 
       {/* AI Action Button (Always visible) */}
-      <div className={`px-4 pt-5 pb-3 ${isCollapsed ? "flex justify-center" : ""}`}>
+      <div
+        className={`px-4 pt-5 pb-3 ${isCollapsed ? "flex justify-center" : ""}`}
+      >
         <motion.button
           onClick={() => !isCollapsed && setShowPrompt(!showPrompt)}
-          className={`${isCollapsed ? "p-3" : "px-4 py-3"} flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-xl shadow-lg shadow-indigo-900/30 font-medium transition-all ${isCollapsed ? "w-12 h-12" : "w-full"}`}
+          className={`${
+            isCollapsed ? "p-3" : "px-4 py-3"
+          } flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-xl shadow-lg shadow-indigo-900/30 font-medium transition-all ${
+            isCollapsed ? "w-12 h-12" : "w-full"
+          }`}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           disabled={isCollapsed}
@@ -314,7 +381,7 @@ Heading 2 format(heading text should be present before the actual heading)`;
                   <X size={16} />
                 </button>
               </div>
-              
+
               <div className="relative">
                 <textarea
                   className="w-full p-3 border border-slate-700 rounded-lg bg-slate-800 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm resize-none"
@@ -337,24 +404,26 @@ Heading 2 format(heading text should be present before the actual heading)`;
                   )}
                 </motion.button>
               </div>
-              
+
               <motion.button
                 onClick={handleAIClick}
-                className={`w-full flex items-center justify-center gap-2 bg-gradient-to-r ${selectedOption.gradientFrom} ${selectedOption.gradientTo} text-white px-4 py-3 rounded-lg font-medium shadow-md shadow-slate-900/40 ${
+                className={`w-full flex items-center justify-center gap-2 bg-gradient-to-r ${
+                  selectedOption.gradientFrom
+                } ${
+                  selectedOption.gradientTo
+                } text-white px-4 py-3 rounded-lg font-medium shadow-md shadow-slate-900/40 ${
                   loading ? "opacity-70 cursor-not-allowed" : ""
                 }`}
                 disabled={loading}
                 whileHover={{ scale: loading ? 1 : 1.02 }}
                 whileTap={{ scale: loading ? 1 : 0.98 }}
               >
-                {loading && (
-                  <Loader2 size={16} className="animate-spin" />
-                )}
+                {loading && <Loader2 size={16} className="animate-spin" />}
                 {getButtonText()}
               </motion.button>
 
               {error && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="p-3 bg-red-900/30 border border-red-800 rounded-lg text-sm text-red-200"
@@ -377,7 +446,10 @@ Heading 2 format(heading text should be present before the actual heading)`;
             className="px-6 pt-4 pb-2"
           >
             <div className="relative">
-              <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+              <Search
+                size={16}
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
+              />
               <input
                 type="text"
                 placeholder="Search templates..."
@@ -394,18 +466,22 @@ Heading 2 format(heading text should be present before the actual heading)`;
       {!isCollapsed && (
         <div className="px-6 pt-4 pb-2">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Available Templates</h3>
+            <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              Available Templates
+            </h3>
             <Settings size={14} className="text-slate-500" />
-          </div> 
+          </div>
         </div>
       )}
 
       {/* Template options */}
-      <motion.div 
-        className={`flex-1 ${isCollapsed ? "px-2 py-3" : "px-4 pt-2 pb-6"} overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent`}
+      <motion.div
+        className={`flex-1 ${
+          isCollapsed ? "px-2 py-3" : "px-4 pt-2 pb-6"
+        } overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent`}
         layout
       >
-        <motion.div 
+        <motion.div
           className={`grid ${isCollapsed ? "" : "grid-cols-2"} gap-3`}
           layout
         >
@@ -413,14 +489,25 @@ Heading 2 format(heading text should be present before the actual heading)`;
             <motion.button
               key={option.key}
               onClick={() => onSelect(option.key)}
-              className={`relative flex ${isCollapsed ? "flex-col" : option.key === selected ? "flex-row" : "flex-col"} items-center justify-center p-4 rounded-xl
-                ${option.key === selected 
-                  ? `bg-gradient-to-br ${option.gradientFrom} ${option.gradientTo} shadow-lg shadow-${option.color}/20` 
-                  : "bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60"} 
+              className={`relative flex ${
+                isCollapsed
+                  ? "flex-col"
+                  : option.key === selected
+                  ? "flex-row"
+                  : "flex-col"
+              } items-center justify-center p-4 rounded-xl
+                ${
+                  option.key === selected
+                    ? `bg-gradient-to-br ${option.gradientFrom} ${option.gradientTo} shadow-lg shadow-${option.color}/20`
+                    : "bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60"
+                } 
                 transition-all duration-300`}
-              whileHover={{ 
+              whileHover={{
                 scale: 1.03,
-                boxShadow: option.key !== selected ? "0 4px 12px rgba(0, 0, 0, 0.1)" : ""
+                boxShadow:
+                  option.key !== selected
+                    ? "0 4px 12px rgba(0, 0, 0, 0.1)"
+                    : "",
               }}
               whileTap={{ scale: 0.97 }}
               onMouseEnter={() => {
@@ -431,19 +518,34 @@ Heading 2 format(heading text should be present before the actual heading)`;
                 setShowTooltip(false);
               }}
             >
-              <div className={`${option.key === selected ? "" : option.color} ${!isCollapsed && option.key !== selected ? "p-2 rounded-lg mb-2" : ""}`}>
-                <option.icon size={isCollapsed ? 24 : 26} className={`${option.key === selected ? "text-white" : "text-white"}`} />
+              <div
+                className={`${option.key === selected ? "" : option.color} ${
+                  !isCollapsed && option.key !== selected
+                    ? "p-2 rounded-lg mb-2"
+                    : ""
+                }`}
+              >
+                <option.icon
+                  size={isCollapsed ? 24 : 26}
+                  className={`${
+                    option.key === selected ? "text-white" : "text-white"
+                  }`}
+                />
               </div>
-              
+
               {(!isCollapsed || option.key === selected) && (
-                <motion.span 
-                  className={`${isCollapsed ? "hidden" : "block"} ${option.key === selected ? "text-white font-medium ml-3" : "mt-2 text-slate-200 font-medium"} text-sm`}
+                <motion.span
+                  className={`${isCollapsed ? "hidden" : "block"} ${
+                    option.key === selected
+                      ? "text-white font-medium ml-3"
+                      : "mt-2 text-slate-200 font-medium"
+                  } text-sm`}
                   layout
                 >
                   {option.key}
                 </motion.span>
               )}
-              
+
               {option.key === selected && (
                 <motion.div
                   className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-lg"
@@ -451,7 +553,9 @@ Heading 2 format(heading text should be present before the actual heading)`;
                   animate={{ scale: 1 }}
                   layoutId="selectedDot"
                 >
-                  <span className={`${option.color} text-white text-xs`}>✓</span>
+                  <span className={`${option.color} text-white text-xs`}>
+                    ✓
+                  </span>
                 </motion.div>
               )}
             </motion.button>
@@ -468,9 +572,15 @@ Heading 2 format(heading text should be present before the actual heading)`;
             exit={{ opacity: 0 }}
             className="absolute bottom-6 left-4 right-4 bg-slate-800 border border-slate-700 rounded-lg p-4 shadow-2xl z-50"
           >
-            <div className={`h-1.5 w-12 ${tooltipContent.color} rounded-full mb-2`}></div>
-            <h3 className="font-semibold text-white mb-1">{tooltipContent.key}</h3>
-            <p className="text-sm text-slate-300">{tooltipContent.description}</p>
+            <div
+              className={`h-1.5 w-12 ${tooltipContent.color} rounded-full mb-2`}
+            ></div>
+            <h3 className="font-semibold text-white mb-1">
+              {tooltipContent.key}
+            </h3>
+            <p className="text-sm text-slate-300">
+              {tooltipContent.description}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -478,7 +588,7 @@ Heading 2 format(heading text should be present before the actual heading)`;
       {/* Current template indicator (when collapsed) */}
       {isCollapsed && (
         <div className="px-3 pb-6 text-center">
-          <motion.div 
+          <motion.div
             className={`text-xs text-white ${selectedOption.color} p-1.5 rounded-md mx-auto`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

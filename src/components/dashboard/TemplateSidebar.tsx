@@ -14,7 +14,9 @@ interface Props {
 const options = [
   "Hierarchy","Timeline","List","Q&A",
   "Process","Cycle","Mindmap","Family Tree",
-  "Bar Chart","Pie Chart","Donut Chart","Line Chart"
+  "Bar Chart","Pie Chart","Donut Chart","Line Chart",
+  "Concept Mapper",
+  "Procedure Diagram"
 ];
 
 export default function TemplateSidebar({ selected, onSelect }: Props) {
@@ -69,7 +71,8 @@ export default function TemplateSidebar({ selected, onSelect }: Props) {
             Process: ChevronDown,      Cycle: ChevronDown,
             Mindmap: ChevronDown,      "Family Tree": ChevronDown,
             "Bar Chart": ChevronDown,   "Pie Chart": ChevronDown,
-            "Donut Chart": ChevronDown, "Line Chart": ChevronDown
+            "Donut Chart": ChevronDown, "Line Chart": ChevronDown,
+            "Concept Mapper": ChevronDown
           }[o]!;
           return (
             <motion.button
