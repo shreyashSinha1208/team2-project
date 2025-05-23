@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/app/store/hooks";
 import { setQnAData } from "@/app/store/chartsSlice";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp, MessageCircle } from "lucide-react";
+import { MessageCircle, CornerDownRight } from "lucide-react";
 
 interface Props {
   items?: string[];
@@ -70,68 +70,48 @@ export default function QnAView({ items }: Props) {
     .filter(item => item !== null);
 
   return (
-    <motion.div 
-      className="w-full h-full overflow-auto bg-gradient-to-br from-white to-amber-50 rounded-xl p-8"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <div className="max-w-4xl mx-auto">
-        <h2 className="text-2xl font-bold text-amber-600 mb-8 text-center flex items-center justify-center gap-2">
-          <MessageCircle className="h-6 w-6" />
-          Questions & Answers
+    <div className="min-h-screen py-10 px-4">
+      <div className="max-w-2xl mx-auto bg-white rounded-2xl p-8 border border-gray-200">
+        <h2 className="text-3xl font-bold text-blue-700 text-center mb-8">
+          📝 Q&A Questionnaire
         </h2>
-        
-        {validItems.length === 0 && (
-          <div className="text-center py-10">
-            <p className="text-gray-500">No questions available.</p>
-          </div>
+
+        {items.length === 0 && (
+          <p className="text-center text-gray-400 text-lg">
+            No questions available.
+          </p>
         )}
-        
-        <div className="space-y-4">
-          {validItems.map((item, i) => (
-            <motion.div
-              key={i}
-              className="bg-white rounded-lg shadow-sm overflow-hidden border border-amber-200"
-              variants={itemVariants}
-              whileHover={{ scale: 1.01 }}
-              transition={{ duration: 0.2 }}
-            >
-              <button
-                onClick={() => toggleItem(i)}
-                className="w-full flex justify-between items-center p-4 text-left bg-gradient-to-r from-amber-100 to-amber-50 hover:from-amber-200 hover:to-amber-100 transition-colors duration-200"
+
+        <dl className="space-y-6">
+          {items.map((line, i) => {
+            if (!line.includes(":")) {
+              return <div key={i} className="min-h-[50px]"></div>;
+            }
+
+            const [q, a, ...rest] = line.split(":");
+
+            if (!q?.trim() || !a?.trim() || rest.length > 0) {
+              return <div key={i} className="min-h-[50px]"></div>;
+            }
+
+            return (
+              <div
+                key={i}
+                className="group transition border border-gray-200 bg-blue-50 rounded-xl p-6"
               >
-                <h3 className="text-lg font-medium text-amber-800">
-                  {item!.question}
-                </h3>
-                {expandedItems.includes(i) ? (
-                  <ChevronUp className="h-5 w-5 text-amber-600 flex-shrink-0" />
-                ) : (
-                  <ChevronDown className="h-5 w-5 text-amber-600 flex-shrink-0" />
-                )}
-              </button>
-              
-              <AnimatePresence>
-                {expandedItems.includes(i) && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
-                    className="overflow-hidden"
-                  >
-                    <div className="p-5 bg-white border-t border-amber-100">
-                      <p className="text-gray-700 leading-relaxed">
-                        {item!.answer}
-                      </p>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          ))}
-        </div>
+                <dt className="flex items-center text-blue-900 text-base font-semibold mb-1">
+                  <MessageCircle className="w-5 h-5 mr-2 text-blue-600" />
+                  {q.trim()}
+                </dt>
+                <dd className="ml-7 flex items-start text-gray-800 leading-relaxed">
+                  <CornerDownRight className="w-4 h-4 mt-1 mr-2 text-blue-400" />
+                  {a.trim()}
+                </dd>
+              </div>
+            );
+          })}
+        </dl>
       </div>
-    </motion.div>
+    </div>
   );
 }

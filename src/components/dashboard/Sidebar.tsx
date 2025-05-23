@@ -2,6 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useDispatch, useSelector } from "react-redux"; // Import useDispatch and useSelector
+import { RootState } from "@/app/store/store"; // Import RootState
+import { setItems, setTimelineData, setListViewData } from "@/app/store/dataSlice"; // Import Redux actions
+
 import {
   Grid,
   Clock,
@@ -20,12 +24,17 @@ import {
   Settings,
   Star,
   Zap,
+  FileText,
+  Database,
 } from "lucide-react";
+import { set } from "date-fns";
 
 interface Props {
   selected: string;
   onSelect: (t: string) => void;
-  onDataGenerated?: (data: string) => void;
+  onDataGenerated?: (data: string) => void; // For AI generated data
+  onManualDataChange?: (data: string) => void; // New prop for manually typed data in other templates
+  currentRawData: string; // New prop to receive current rawData from DashboardPage
 }
 
 interface TemplateOption {
@@ -109,7 +118,18 @@ export default function TemplateSidebar({
   selected,
   onSelect,
   onDataGenerated,
+  onManualDataChange, // New prop
+  currentRawData, // New prop
 }: Props) {
+  const dispatch = useDispatch();
+  const swotItems = useSelector((state: RootState) => state.swot.items);
+  const timelineReduxData = useSelector(
+    (state: RootState) => state.swot.timelineData
+  );
+  const listViewReduxData = useSelector(
+    (state: RootState) => state.swot.listViewData
+  );
+
   const [showPrompt, setShowPrompt] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [response, setResponse] = useState("");
@@ -123,6 +143,7 @@ export default function TemplateSidebar({
   );
 
   // Filtered options based on search input
+  
   const filteredOptions = options.filter(
     (option) =>
       option.key.toLowerCase().includes(filterText.toLowerCase()) ||
@@ -133,14 +154,25 @@ export default function TemplateSidebar({
   const getSystemPrompt = () => {
     switch (selected) {
       case "Timeline":
-        return `You are a historical timeline data generator. When given a historical topic, generate a timeline of key events in the format "year:event" with each event on a new line. Focus on the most significant events, and provide around 10-20 entries for a comprehensive but manageable timeline. Only provide the raw data in the year:event format, with no introduction or explanation.`;
+        return `You are a historical timeline data generator. When given a historical topic, generate a timeline of key events in the format "year:event" with each event on a new line. Focus on the most significant events, and provide around 10-20 entries for a comprehensive but manageable timeline. Only provide the raw data in the year:event format, with no introduction or explanation. Ensure all leading spaces are trimmed. Be precise and concise. Example format:
+1945:World War II ended
+1969:First human landed on the Moon`;
+
       case "Q&A":
-        return `You are a Q&A data generator. When given a topic, generate a series of questions and answers in the format "question?:answer" with each Q&A pair on a new line. Focus on the most important aspects of the topic, and provide around 5-10 Q&A pairs. Only provide the raw data in the question?:answer format, with no introduction or explanation.`;
+        return `You are a Q&A data generator. When given a topic, generate a series of questions and answers in the format "question?:answer" with each Q&A pair on a new line. Focus on the most important aspects of the topic, and provide around 5-10 Q&A pairs. Only provide the raw data in the question?:answer format, with no introduction or explanation. Ensure all leading spaces are trimmed. Be precise and concise. Example format:
+What are you?:I am a bird
+Where do you live?:In the sky`;
+
       case "List":
-        return `You are a list data generator. When given a topic, organize information into a structured list with headings and items. Format each heading line as "heading X" where X can be any text, followed by list items on separate lines. Use multiple headings to organize different aspects of the topic. Only provide the raw data in this format, with no introduction or explanation. Use Heading 1
-hello
-bello
-Heading 2 format(heading text should be present before the actual heading)`;
+        return `You are a list data generator. When given a topic, organize information into a structured list with headings and items. Format each heading line as "Heading X" where X is the heading text, followed by list items on separate lines. Use multiple headings to organize different aspects of the topic. Only provide the raw data in this format, with no introduction or explanation. Ensure all leading spaces are trimmed. Be precise and concise. Example format:
+Heading Animals.
+Cat
+Dog
+Elephant
+Heading Birds.
+Sparrow
+Eagle`;
+
       case "Hierarchy":
         return `You are a hierarchy data generator. When given a topic, create a hierarchical structure of concepts using indentation to show parent-child relationships. Items at the same indentation level have the same parent. Each level of indentation should use two additional spaces. Only provide the raw hierarchical data with proper indentation, with no introduction or explanation.`;
       case "Map":
@@ -158,7 +190,7 @@ Only output raw data in this arrow format. Do not include any explanations, list
         case "Procedure Diagram":
           return `You are a step-by-step procedure generator. When given a topic, generate 4 to 6 sequential steps. Each step must have a title on one line immediately followed on the next line by a description starting with "Description:" with no blank lines or spaces between them. There should be exactly one blank line after each step. Do not add any blank lines or leading spaces before titles or descriptions. Provide only the raw output with no introduction or explanation.`;
       default:
-        return `You are a teacher. Give answers in an explanatory way`;
+        return `You are a teacher. Provide clear and explanatory answers. Ensure all leading spaces are trimmed and avoid unnecessary details.`;
     }
   };
 
@@ -218,6 +250,8 @@ Only output raw data in this arrow format. Do not include any explanations, list
         onDataGenerated
       ) {
         onDataGenerated(aiReply);
+        // Also update the manual input text with AI response
+        // setManualInputText(aiReply);
         // Auto-hide the prompt box after successful generation
         setTimeout(() => setShowPrompt(false), 1000);
       }
@@ -232,6 +266,8 @@ Only output raw data in this arrow format. Do not include any explanations, list
   };
 
   // Auto-open the prompt box when certain templates are selected
+  // This useEffect might be less relevant now that AI is in Data tab,
+  // but keeping it for now in case there's a specific flow intended.
   useEffect(() => {
     if (
       [
@@ -248,7 +284,7 @@ Only output raw data in this arrow format. Do not include any explanations, list
     }
   }, [selected]);
 
-  // Get placeholder text based on selected template
+  // Get placeholder text based on selected template (for AI prompt)
   const getPlaceholderText = () => {
     switch (selected) {
       case "Timeline":
@@ -274,6 +310,7 @@ Only output raw data in this arrow format. Do not include any explanations, list
       return "Generating...";
     }
 
+
     switch (selected) {
       case "Timeline":
         return "Generate Timeline";
@@ -289,6 +326,105 @@ Only output raw data in this arrow format. Do not include any explanations, list
         return "Generate Concept Map";
       default:
         return "Ask AI";
+    }
+  };
+
+  // Get data input placeholder text based on selected template (for manual input textarea)
+  const getDataInputPlaceholder = () => {
+    switch (selected) {
+      case "Timeline":
+        return `Format: year:event description
+
+Example:
+1945:World War II ended
+1969:First human landed on the Moon
+1989:Berlin Wall fell
+2001:September 11 attacks occurred
+2008:Global financial crisis began
+
+Enter your timeline data above...`;
+
+      case "Q&A":
+        return `Format: question?:answer
+
+Example:
+What is photosynthesis?:The process by which plants convert light into energy
+How do birds fly?:By flapping their wings to create lift and thrust
+Why is the sky blue?:Due to scattering of light by molecules in the atmosphere
+When did dinosaurs live?:Primarily during the Mesozoic Era, 252-66 million years ago
+
+Enter your Q&A pairs above...`;
+
+      case "List":
+        return `Format: Heading followed by items
+
+Example:
+Heading Fruits.
+Apple
+Banana
+Orange
+Mango
+Heading Vegetables.
+Carrot
+Broccoli
+Spinach
+Tomato
+
+Enter your list data above...`;
+
+      case "Hierarchy":
+        return `Format: Use indentation (2 spaces per level) to show parent-child relationships
+
+Example:
+Technology
+  Software
+    Web Development
+      HTML
+      CSS
+      JavaScript
+    Mobile Development
+      iOS
+      Android
+  Hardware
+    Processors
+    Memory
+
+Enter your hierarchy data above...`;
+
+      case "Swot":
+        return `Format: Four sections with numbered items
+
+Strengths
+1. High efficiency
+2. Strong team
+3. Good reputation
+
+Weaknesses
+1. Limited budget
+2. Small market share
+3. Outdated technology
+
+Opportunities
+1. Growing demand
+2. New markets
+3. Strategic partnerships
+
+Threats
+1. Strong competitors
+2. Economic downturn
+3. Regulatory changes
+
+Enter your SWOT analysis above...`;
+
+      case "Pro":
+        return `Enter your advanced data for professional analysis...
+
+You can use any format that suits your analysis needs.`;
+
+      default:
+        return `Enter your data here...
+
+The format will depend on your selected template.`;
     }
   };
 
@@ -319,6 +455,11 @@ Only output raw data in this arrow format. Do not include any explanations, list
         ) : (
           <PanelLeftClose size={18} />
         )}
+        {isCollapsed ? (
+          <PanelLeftOpen size={18} />
+        ) : (
+          <PanelLeftClose size={18} />
+        )}
       </motion.button>
 
       {/* Top nav */}
@@ -330,11 +471,11 @@ Only output raw data in this arrow format. Do not include any explanations, list
           className="flex items-center space-x-3"
           animate={{ opacity: isCollapsed ? 0 : 1 }}
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 shadow-md">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br bg-[#0790e8] shadow-md">
             <Zap size={22} className="text-white" />
           </div>
           <h2 className="text-xl font-bold text-white tracking-tight">
-            Templates
+            Dashboard
           </h2>
         </motion.div>
       </motion.div>
@@ -581,6 +722,15 @@ Only output raw data in this arrow format. Do not include any explanations, list
             <p className="text-sm text-slate-300">
               {tooltipContent.description}
             </p>
+            <div
+              className={`h-1.5 w-12 ${tooltipContent.color} rounded-full mb-2`}
+            ></div>
+            <h3 className="font-semibold text-white mb-1">
+              {tooltipContent.key}
+            </h3>
+            <p className="text-sm text-slate-300">
+              {tooltipContent.description}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -600,3 +750,4 @@ Only output raw data in this arrow format. Do not include any explanations, list
     </motion.aside>
   );
 }
+

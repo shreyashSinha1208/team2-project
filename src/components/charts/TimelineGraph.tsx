@@ -1,160 +1,244 @@
-import React, { useEffect, useState } from "react";
-import { useAppSelector, useAppDispatch } from "@/app/store/hooks";
-import { setTimelineData } from "@/app/store/chartsSlice";
-import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, ChevronDown, ChevronUp, Clock } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/app/store/store";
+import { setTimelineData } from "@/app/store/dataSlice";
 
-interface Props {
-  data?: string;
-}
 
-export default function TimelineGraph({ data }: Props) {
-  const dispatch = useAppDispatch();
-  const timelineData = useAppSelector((state) => state.charts.data.timeline);
-  const [expandedItems, setExpandedItems] = useState<number[]>([0]); // First item expanded by default
-  
-  useEffect(() => {
-    if (data) {
-      dispatch(setTimelineData(data));
-    }
-  }, [data, dispatch]);
-  
-  const displayData = data || timelineData;
-  
-  const events = displayData
+export default function TimelineGraph() {
+  const dispatch = useDispatch();
+  const data = useSelector((state: RootState) => state.swot.timelineData);
+
+  // State for adding new entries
+  const [newEntryYear, setNewEntryYear] = useState('');
+  const [newEntryDescription, setNewEntryDescription] = useState('');
+
+  // Parse timeline entries from the Redux data string
+  const timelineEntries = data
     .split("\n")
-    .map(line => line.trim())
+    .map((line) => line.trim())
     .filter(Boolean)
-    .map((event) => {
+    .map((event, index) => {
       if (!event.includes(":")) {
+        // If format is invalid, return null to filter out later
         return null;
       }
-      const [date, ...desc] = event.split(":");
-      if (!date?.trim() || desc.length === 0 || !desc.join(":").trim()) {
-        return null;
+      const [year, ...descParts] = event.split(":");
+      const description = descParts.join(":").trim();
+
+      if (!year?.trim() || !description) {
+        return null; // Skip if year or description is empty after splitting
       }
       return {
-        date: date.trim(),
-        description: desc.join(":").trim(),
+        id: `timeline-item-${index}`, // Unique ID for React keys
+        year: year.trim(),
+        description: description,
       };
     })
-    .filter(Boolean) as { date: string; description: string }[];
+    .filter(Boolean); // Filter out any null entries from invalid format
 
-  const toggleItem = (index: number) => {
-    setExpandedItems(prev => 
-      prev.includes(index) 
-        ? prev.filter(i => i !== index) 
-        : [...prev, index]
-    );
+  const ref = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState(0);
+
+  useEffect(() => {
+    if (ref.current) {
+      const rect = ref.current.getBoundingClientRect();
+      setHeight(rect.height);
+    }
+  }, [ref]);
+  // Function to handle changes to an individual timeline entry's description
+  const handleDescriptionChange = (index: number, newDescription: string) => {
+    const updatedEntries = timelineEntries.map((entry, idx) => {
+      if (idx === index) {
+        return { ...entry, description: newDescription };
+      }
+      return entry;
+    });
+
+    // Reconstruct the full data string from the updated entries
+    const newRawData = updatedEntries
+      .map((entry) => `${entry?.year}: ${entry?.description}`)
+      .join("\n");
+
+    dispatch(setTimelineData(newRawData));
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        when: "beforeChildren",
-        staggerChildren: 0.2
+  // Function to handle changes to an individual timeline entry's year
+  const handleYearChange = (index: number, newYear: string) => {
+    const updatedEntries = timelineEntries.map((entry, idx) => {
+      if (idx === index) {
+        return { ...entry, year: newYear };
       }
+      return entry;
+    });
+
+    // Reconstruct the full data string from the updated entries
+    const newRawData = updatedEntries
+      .map((entry) => `${entry?.year}: ${entry?.description}`)
+      .join("\n");
+
+    dispatch(setTimelineData(newRawData));
+  };
+
+  // Function to add a new timeline entry
+  const handleAddEntry = () => {
+    if (newEntryYear.trim() && newEntryDescription.trim()) {
+      const newEntryLine = `${newEntryYear.trim()}: ${newEntryDescription.trim()}`;
+      // Append the new entry to the existing data, adding a newline if data already exists
+      const updatedData = data.trim() === '' ? newEntryLine : `${data}\n${newEntryLine}`;
+      dispatch(setTimelineData(updatedData));
+      setNewEntryYear('');
+      setNewEntryDescription('');
     }
   };
-  
-  const itemVariants = {
-    hidden: { opacity: 0, x: -50 },
-    visible: { 
-      opacity: 1, 
-      x: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 10
-      }
-    }
+
+  // Function to delete a timeline entry
+  const handleDeleteEntry = (indexToDelete: number) => {
+    const updatedEntries = timelineEntries.filter((_, idx) => idx !== indexToDelete);
+    const newRawData = updatedEntries
+      .map((entry) => `${entry?.year}: ${entry?.description}`)
+      .join("\n");
+    dispatch(setTimelineData(newRawData));
   };
 
-  if (events.length === 0) {
+  // Render message and input for adding new entry if no valid timeline data exists
+  if (timelineEntries.length === 0) {
     return (
-      <div className="w-full h-full flex items-center justify-center p-8 bg-gradient-to-br from-white to-violet-50 rounded-xl">
-        <div className="text-center">
-          <Calendar className="w-16 h-16 mx-auto mb-4 text-violet-300" />
-          <p className="text-lg text-violet-500">No timeline events available</p>
+      <div className="p-6 text-center text-gray-500 max-w-xl mx-auto">
+        <p className="mb-4">No valid timeline data found. Add your first entry!</p>
+        <div className="flex flex-col gap-4 p-4 border rounded-md bg-white dark:bg-neutral-900 ">
+          <input
+            type="text"
+            className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-800 dark:text-neutral-200"
+            placeholder="Year (e.g., 1990)"
+            value={newEntryYear}
+            onChange={(e) => setNewEntryYear(e.target.value)}
+          />
+          <textarea
+            className="w-full h-24 p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-800 dark:text-neutral-200"
+            placeholder="Description of event"
+            value={newEntryDescription}
+            onChange={(e) => setNewEntryDescription(e.target.value)}
+          />
+          <button
+            onClick={handleAddEntry}
+            className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Add Entry
+          </button>
         </div>
+        {data.trim() !== "" && (
+          <p className="mt-4 text-sm text-red-500">
+            Current data might be malformed. Please ensure each line is "Year: Description".
+          </p>
+        )}
       </div>
     );
   }
 
   return (
-    <motion.div 
-      className="w-full h-full overflow-auto p-8 bg-gradient-to-br from-white to-violet-50 rounded-xl"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
+    <div
+      className="w-full bg-white dark:bg-neutral-950 md:px-10"
+      ref={containerRef}
     >
-      <div className="max-w-4xl mx-auto">
-        <h3 className="text-2xl font-bold mb-8 text-violet-700 text-center flex items-center justify-center gap-2">
-          <Clock className="h-6 w-6" />
-          Timeline
-        </h3>
-        
-        <div className="relative">
-          {/* Timeline line */}
-          <div className="absolute left-[24px] top-0 bottom-0 w-1 bg-gradient-to-b from-violet-300 to-violet-500 rounded-full"></div>
-          
-          {events.map((event, index) => (
-            <motion.div 
-              key={index} 
-              className="mb-6 relative"
-              variants={itemVariants}
-            >
-              {/* Dot */}
-              <div className="absolute left-[18px] top-2 w-[14px] h-[14px] rounded-full bg-white p-1 z-10 shadow-md">
-                <div className="w-full h-full bg-violet-500 rounded-full"></div>
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold text-center mb-8 text-gray-800 dark:text-white">
+          Interactive Timeline
+        </h1>
+      </div>
+
+      <div ref={ref} className="relative max-w-7xl mx-auto pb-20">
+        {/* Timeline vertical connector line */}
+        <div
+          className="absolute md:left-8 left-8 top-0 h-full w-[2px] bg-gray-300
+ dark:bg-[linear-gradient(to_bottom,transparent_0%,#4b5563_10%,#4b5563_90%,transparent_100%)]"
+        ></div>
+
+        {timelineEntries.map((item, index) => (
+          <div
+            key={item?.id} // Use item.id for key
+            className="flex justify-start pt-10 md:pt-24 md:gap-10"
+          >
+            <div className="sticky flex flex-col md:flex-row z-40 items-center top-40 self-start max-w-xs lg:max-w-sm md:w-full">
+              {/* Timeline dot */}
+              <div className="h-10 absolute left-3 md:left-3 w-10 rounded-full bg-white dark:bg-black flex items-center justify-center z-10">
+                <div className="h-4 w-4 rounded-full bg-black border-black dark:border-black p-2" />
               </div>
 
-              {/* Card */}
-              <div className="ml-12">
-                <motion.div 
-                  className="bg-white rounded-lg shadow-sm overflow-hidden border border-violet-100"
-                  whileHover={{ scale: 1.01 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <button
-                    onClick={() => toggleItem(index)}
-                    className="w-full flex justify-between items-center p-4 text-left bg-gradient-to-r from-violet-100 to-violet-50 hover:from-violet-200 hover:to-violet-100 transition-colors duration-200"
-                  >
-                    <span className="text-sm font-semibold text-violet-800">
-                      {event.date}
-                    </span>
-                    {expandedItems.includes(index) ? (
-                      <ChevronUp className="h-5 w-5 text-violet-600 flex-shrink-0" />
-                    ) : (
-                      <ChevronDown className="h-5 w-5 text-violet-600 flex-shrink-0" />
-                    )}
-                  </button>
-                  
-                  <AnimatePresence>
-                    {expandedItems.includes(index) && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: "easeInOut" }}
-                        className="overflow-hidden"
-                      >
-                        <div className="p-5 bg-white border-t border-violet-100">
-                          <p className="text-gray-700 leading-relaxed">
-                            {event.description}
-                          </p>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              </div>
-            </motion.div>
-          ))}
+              <input
+                type="text"
+                className="hidden md:block text-xl md:pl-20 md:text-5xl font-bold text-neutral-500 dark:text-neutral-500 bg-transparent border-b border-transparent focus:border-gray-400 transition-colors w-full"
+                value={item?.year}
+                onChange={(e) => handleYearChange(index, e.target.value)}
+              />
+            </div>
+            <div className="relative pl-20 pr-4 md:pl-4 w-full flex flex-col">
+              <input
+                type="text"
+                className="md:hidden block text-2xl mb-4 text-left font-bold text-neutral-500 dark:text-neutral-500 bg-transparent border-b border-transparent focus:border-gray-400 transition-colors w-full"
+                value={item?.year}
+                onChange={(e) => handleYearChange(index, e.target.value)}
+              />
+              <textarea
+                className="bg-white dark:bg-neutral-900 p-6 rounded-lg border-[1px] border-neutral-200 dark:border-neutral-700  transition-all duration-300 w-full resize-y min-h-[80px] focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-neutral-300"
+                value={item?.description}
+                onChange={(e) => handleDescriptionChange(index, e.target.value)}
+              />
+              <button
+                onClick={() => handleDeleteEntry(index)}
+                className="mt-2 self-end px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors text-sm"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
+
+        {/* Section for adding new entries */}
+        <div className="max-w-xl mx-auto mt-10 p-6 border rounded-2xl bg-white dark:bg-neutral-900">
+          <h2 className="text-2xl font-bold text-center mb-6 text-gray-800 dark:text-white">Add New Timeline Entry</h2>
+          <div className="flex flex-col gap-4">
+            <input
+              type="text"
+              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-800 dark:text-neutral-200"
+              placeholder="Year (e.g., 2023)"
+              value={newEntryYear}
+              onChange={(e) => setNewEntryYear(e.target.value)}
+            />
+            <textarea
+              className="w-full h-24 p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-800 dark:text-neutral-200 resize-y"
+              placeholder="Description of event"
+              value={newEntryDescription}
+              onChange={(e) => setNewEntryDescription(e.target.value)}
+            />
+            <button
+              onClick={handleAddEntry}
+              className="px-6 py-3 bg-gradient-to-r from-violet-400 to-violet-600 text-white rounded-md hover:from-violet-500 hover:to-violet-700 transition-colors shadow-md"
+            >
+              Add Entry
+            </button>
+          </div>
         </div>
+
+        {/* Animated progress line - uncomment if you want to use Framer Motion's scroll progress animation */}
+        {/* <div
+          style={{ height: `${height}px` }}
+          className="absolute md:left-8 left-8 top-0 w-[2px] overflow-hidden
+  bg-gradient-to-b from-transparent via-neutral-200 to-transparent
+  dark:via-neutral-700
+  [mask-image:linear-gradient(to_bottom,transparent_0%,black_10%,black_90%,transparent_100%)]"
+        >
+          <motion.div
+            style={{
+              height: heightTransform,
+              opacity: opacityTransform,
+            }}
+            className="absolute inset-x-0 top-0 w-[2px]
+  bg-gradient-to-t from-purple-500 via-blue-500 to-transparent
+  rounded-full"
+          />
+        </div> */}
       </div>
-    </motion.div>
+    </div>
   );
 }
