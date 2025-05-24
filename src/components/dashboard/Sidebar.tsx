@@ -89,6 +89,14 @@ const options: TemplateOption[] = [
     gradientTo: "to-amber-600",
   },
   {
+    key: "Swot",
+    icon: Layout,
+    description: "Strengths, Weaknesses, Opportunities, Threats",
+    color: "bg-sky-500",
+    gradientFrom: "from-sky-400",
+    gradientTo: "to-sky-600",
+  },
+  {
     key: "Bar Chart",
     icon: BarChart3,
     description: "Visualize data with vertical bars",
@@ -113,22 +121,6 @@ const options: TemplateOption[] = [
     gradientTo: "to-teal-600",
   },
   {
-    key: "Pro",
-    icon: Star,
-    description: "Advanced visualization and analysis",
-    color: "bg-rose-500",
-    gradientFrom: "from-rose-400",
-    gradientTo: "to-rose-600",
-  },
-  {
-    key: "Swot",
-    icon: Layout,
-    description: "Strengths, Weaknesses, Opportunities, Threats",
-    color: "bg-sky-500",
-    gradientFrom: "from-sky-400",
-    gradientTo: "to-sky-600",
-  },
-  {
     key: "Doughnut Chart",
     icon: CircleDot,
     description: "Display data as a ring with segments",
@@ -143,6 +135,22 @@ const options: TemplateOption[] = [
     color: "bg-orange-500",
     gradientFrom: "from-orange-400",
     gradientTo: "to-orange-600",
+  },
+  {
+    key: "Concept Mapper",
+    icon: Zap,
+    description: "Create concept maps and mind maps",
+    color: "bg-rose-500",
+    gradientFrom: "from-rose-400",
+    gradientTo: "to-rose-600",
+  },
+  {
+    key: "Procedure Diagram",
+    icon: Sparkles,
+    description: "Create step-by-step procedure diagrams",
+    color: "bg-cyan-500",
+    gradientFrom: "from-cyan-400",
+    gradientTo: "to-cyan-600",
   },
 ];
 
@@ -291,6 +299,34 @@ Opportunities
 Threats
 1. Competitors
 2. Economic downturn`;
+      case "Concept Mapper":
+        return `You are a concept mapping data generator. When given a topic, generate a concept map in plain text format using labeled nodes and their directional relationships. Represent nodes with text labels and connections with arrows using the format "Source -> Target". Each relationship must be on a separate line. If a node has no outgoing connections, list it as a single label on a new line. Do not include any titles, explanations, or formatting other than plain text. Be precise and concise. Ensure all leading spaces are trimmed. Example format:
+
+Main Idea
+Main Idea -> Sub Idea 1
+Main Idea -> Sub Idea 2
+Sub Idea 1 -> Detail 1
+Sub Idea 1 -> Detail 2
+Sub Idea 2
+Detail 1
+Detail 2
+`;
+      case "Procedure Diagram":
+        return `You are a procedure diagram data generator. When given a topic, generate a step-by-step procedure in plain text format. Each step should be on a new line, and you can use indentation to show sub-steps. Do not include any titles, explanations, or formatting other than plain text. Be precise and concise. Ensure all leading spaces are trimmed. Example format:
+Gather Materials
+List all tools and items needed to begin the procedure. Ensure availability before starting.
+
+Prepare Workspace
+Clean and organize the area. Set up any necessary equipment.
+
+Start the Process
+Follow the instructions to begin the task. Double-check settings.
+
+Verify Results
+Check output for correctness. Document any errors or inconsistencies.
+
+Cleanup
+Shut down all equipment safely and return materials to storage.`;
 
       case "Doughnut Chart":
         return `You are a doughnut chart data generator. When given a topic, generate data in JSON format with labels and datasets. The data should be in the following format:
@@ -389,7 +425,15 @@ Only provide the raw JSON data, with no introduction or explanation. Be precise 
 
       // Pass the generated data to parent component if we're in a templated mode
       if (
-        ["Timeline", "Q&A", "List", "Hierarchy", "Swot"].includes(selected) &&
+        [
+          "Timeline",
+          "Q&A",
+          "List",
+          "Hierarchy",
+          "Swot",
+          "Procedure Diagram",
+          "Concept Mapper",
+        ].includes(selected) &&
         aiReply &&
         onDataGenerated
       ) {
@@ -413,7 +457,17 @@ Only provide the raw JSON data, with no introduction or explanation. Be precise 
   // This useEffect might be less relevant now that AI is in Data tab,
   // but keeping it for now in case there's a specific flow intended.
   useEffect(() => {
-    if (["Timeline", "Q&A", "List", "Hierarchy", "Swot"].includes(selected)) {
+    if (
+      [
+        "Timeline",
+        "Q&A",
+        "List",
+        "Hierarchy",
+        "Swot",
+        "Procedure Diagram",
+        "Concept Mapper",
+      ].includes(selected)
+    ) {
       // You might want to setActiveTab("data") here if the intent is to always
       // switch to data tab when a templated chart is selected.
       // setShowPrompt(true); // This would auto-open the AI prompt box
@@ -433,6 +487,10 @@ Only provide the raw JSON data, with no introduction or explanation. Be precise 
         return "Enter a topic for hierarchy generation (e.g., animal classification, company structure)...";
       case "Swot":
         return "Enter a topic for SWOT analysis (e.g., business expansion, product launch)...";
+      case "Concept Mapper":
+        return "Enter a topic for Concept Mapper here (e.g., business expansion, product launch)...";
+      case "Procedure Diagram":
+        return "Enter a topic for Procedure Diagram here (e.g., business expansion, product launch)...";
       default:
         return "Enter your prompt...";
     }
@@ -455,6 +513,10 @@ Only provide the raw JSON data, with no introduction or explanation. Be precise 
         return "Generate Hierarchy";
       case "Swot":
         return "Generate SWOT Analysis";
+      case "Concept Mapper":
+        return "Generate Concept Map";
+      case "Procedure Diagram":
+        return "Generate Procedure Diagram";
       default:
         return "Ask AI";
     }
@@ -656,7 +718,43 @@ Enter your line chart data above...`;
         return `Enter your advanced data for professional analysis...
 
 You can use any format that suits your analysis needs.`;
+      case "Concept Mapper":
+        return `Format: Use arrows to show relationships
 
+Example:
+Renewable Energy
+Renewable Energy -> Solar Power
+Renewable Energy -> Wind Energy
+Renewable Energy -> Hydropower
+Solar Power -> Photovoltaic Cells
+Solar Power -> Solar Thermal Systems
+Wind Energy -> Turbines
+Hydropower -> Dams
+Photovoltaic Cells
+Solar Thermal Systems
+Turbines
+Dams
+
+Enter your Concept Mapper data above...`;
+
+      case "Procedure Diagram":
+        return `Format: Use line spaces to show blocks
+Example:Gather Materials
+List all tools and items needed to begin the procedure. Ensure availability before starting.
+
+Prepare Workspace
+Clean and organize the area. Set up any necessary equipment.
+
+Start the Process
+Follow the instructions to begin the task. Double-check settings.
+
+Verify Results
+Check output for correctness. Document any errors or inconsistencies.
+
+Cleanup
+Shut down all equipment safely and return materials to storage.
+
+      Enter your Procedure Diagram here...`;
       default:
         return `Enter your data here...
 
