@@ -3,7 +3,6 @@
 import React from "react";
 import dynamic from "next/dynamic";
 
-
 const HierarchyTree = dynamic(() => import("../charts/HierarchyTree"), {
   ssr: false,
 });
@@ -15,8 +14,10 @@ const QnAView = dynamic(() => import("../charts/QnAView"), { ssr: false });
 const TimelineGraph = dynamic(() => import("../charts/TimelineGraph"), {
   ssr: false,
 });
-const SwotView = dynamic(() => import("../charts/SwotView"), {ssr: false,});
-
+const SwotView = dynamic(() => import("../charts/SwotView"), { ssr: false });
+const DoughnutChart = dynamic(() => import("../charts/DoughnutChart"), {
+  ssr: false,
+});
 
 import { TreeNode, ChartJsData } from "../types";
 
@@ -24,14 +25,14 @@ interface Props {
   template: string;
   rawData: string;
 }
- 
+
 function parseIndentedTextToTree(text: string) {
   const lines = text.split("\n").filter(Boolean);
   const stack: any[] = [];
   let root = null;
 
   for (const line of lines) {
-    const level = line.search(/\S/); 
+    const level = line.search(/\S/);
     const name = line.trim();
     const node = { name, children: [] };
 
@@ -51,13 +52,16 @@ function parseIndentedTextToTree(text: string) {
   return root;
 }
 
-
 export default function ChartRenderer({ template, rawData }: Props) {
   const listItems = rawData.split("\n").filter(Boolean);
   console.log("Raw data received:", rawData);
 
   let json: any = null;
-  if (["Bar Chart", "Pie Chart", "Line Chart"].includes(template)) {
+  if (
+    ["Bar Chart", "Pie Chart", "Line Chart", "Doughnut Chart"].includes(
+      template
+    )
+  ) {
     try {
       json = JSON.parse(rawData);
     } catch (err) {
@@ -92,17 +96,23 @@ export default function ChartRenderer({ template, rawData }: Props) {
       return <LineChart rawData={rawData} />;
 
     case "List":
-      return <ListView/>;
+      return <ListView />;
 
     case "Q&A":
-      return <QnAView items={listItems} />;
+      return <QnAView />;
 
     case "Timeline":
-      // TimelineGraph now gets its data from the Redux store, so no 'data' prop is passed here.
       return <TimelineGraph />;
 
     case "Swot":
       return <SwotView />;
+
+    case "Doughnut Chart":
+      return json ? (
+        <DoughnutChart data={json as ChartJsData} />
+      ) : (
+        <p>Invalid Doughnut Chart Data</p>
+      );
 
     default:
       return <p className="text-center text-gray-500">Select a template</p>;

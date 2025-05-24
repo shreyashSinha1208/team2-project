@@ -3,14 +3,13 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/app/store/store";
 import { setTimelineData } from "@/app/store/dataSlice";
 
-
 export default function TimelineGraph() {
   const dispatch = useDispatch();
   const data = useSelector((state: RootState) => state.swot.timelineData);
 
   // State for adding new entries
-  const [newEntryYear, setNewEntryYear] = useState('');
-  const [newEntryDescription, setNewEntryDescription] = useState('');
+  const [newEntryYear, setNewEntryYear] = useState("");
+  const [newEntryDescription, setNewEntryDescription] = useState("");
 
   // Parse timeline entries from the Redux data string
   const timelineEntries = data
@@ -85,16 +84,19 @@ export default function TimelineGraph() {
     if (newEntryYear.trim() && newEntryDescription.trim()) {
       const newEntryLine = `${newEntryYear.trim()}: ${newEntryDescription.trim()}`;
       // Append the new entry to the existing data, adding a newline if data already exists
-      const updatedData = data.trim() === '' ? newEntryLine : `${data}\n${newEntryLine}`;
+      const updatedData =
+        data.trim() === "" ? newEntryLine : `${data}\n${newEntryLine}`;
       dispatch(setTimelineData(updatedData));
-      setNewEntryYear('');
-      setNewEntryDescription('');
+      setNewEntryYear("");
+      setNewEntryDescription("");
     }
   };
 
   // Function to delete a timeline entry
   const handleDeleteEntry = (indexToDelete: number) => {
-    const updatedEntries = timelineEntries.filter((_, idx) => idx !== indexToDelete);
+    const updatedEntries = timelineEntries.filter(
+      (_, idx) => idx !== indexToDelete
+    );
     const newRawData = updatedEntries
       .map((entry) => `${entry?.year}: ${entry?.description}`)
       .join("\n");
@@ -105,7 +107,9 @@ export default function TimelineGraph() {
   if (timelineEntries.length === 0) {
     return (
       <div className="p-6 text-center text-gray-500 max-w-xl mx-auto">
-        <p className="mb-4">No valid timeline data found. Add your first entry!</p>
+        <p className="mb-4">
+          No valid timeline data found. Add your first entry!
+        </p>
         <div className="flex flex-col gap-4 p-4 border rounded-md bg-white dark:bg-neutral-900 ">
           <input
             type="text"
@@ -129,7 +133,8 @@ export default function TimelineGraph() {
         </div>
         {data.trim() !== "" && (
           <p className="mt-4 text-sm text-red-500">
-            Current data might be malformed. Please ensure each line is "Year: Description".
+            Current data might be malformed. Please ensure each line is "Year:
+            Description".
           </p>
         )}
       </div>
@@ -196,7 +201,9 @@ export default function TimelineGraph() {
 
         {/* Section for adding new entries */}
         <div className="max-w-xl mx-auto mt-10 p-6 border rounded-2xl bg-white dark:bg-neutral-900">
-          <h2 className="text-2xl font-bold text-center mb-6 text-gray-800 dark:text-white">Add New Timeline Entry</h2>
+          <h2 className="text-2xl font-bold text-center mb-6 text-gray-800 dark:text-white">
+            Add New Timeline Entry
+          </h2>
           <div className="flex flex-col gap-4">
             <input
               type="text"

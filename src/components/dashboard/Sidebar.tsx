@@ -31,6 +31,10 @@ import {
   Zap,
   FileText,
   Database,
+  BarChart3,
+  PieChart,
+  CircleDot,
+  LineChart,
 } from "lucide-react";
 import { set } from "date-fns";
 
@@ -85,6 +89,30 @@ const options: TemplateOption[] = [
     gradientTo: "to-amber-600",
   },
   {
+    key: "Bar Chart",
+    icon: BarChart3,
+    description: "Visualize data with vertical bars",
+    color: "bg-blue-500",
+    gradientFrom: "from-blue-400",
+    gradientTo: "to-blue-600",
+  },
+  {
+    key: "Pie Chart",
+    icon: PieChart,
+    description: "Display data as proportional segments",
+    color: "bg-purple-500",
+    gradientFrom: "from-purple-400",
+    gradientTo: "to-purple-600",
+  },
+  {
+    key: "Line Chart",
+    icon: LineChart,
+    description: "Track trends over time with connected points",
+    color: "bg-teal-500",
+    gradientFrom: "from-teal-400",
+    gradientTo: "to-teal-600",
+  },
+  {
     key: "Pro",
     icon: Star,
     description: "Advanced visualization and analysis",
@@ -99,6 +127,22 @@ const options: TemplateOption[] = [
     color: "bg-sky-500",
     gradientFrom: "from-sky-400",
     gradientTo: "to-sky-600",
+  },
+  {
+    key: "Doughnut Chart",
+    icon: CircleDot,
+    description: "Display data as a ring with segments",
+    color: "bg-pink-500",
+    gradientFrom: "from-pink-400",
+    gradientTo: "to-pink-600",
+  },
+  {
+    key: "Knob Chart",
+    icon: CircleDot,
+    description: "Display multiple circular progress indicators",
+    color: "bg-orange-500",
+    gradientFrom: "from-orange-400",
+    gradientTo: "to-orange-600",
   },
 ];
 
@@ -172,6 +216,34 @@ export default function TemplateSidebar({
   // System prompt changes based on selected template
   const getSystemPrompt = () => {
     switch (selected) {
+      case "Bar Chart":
+        return `You are a bar chart data generator. When given a topic, generate data in JSON format with labels and datasets. The data should be in the following format:
+{
+  "labels": ["Category1", "Category2", "Category3", ...],
+  "datasets": [{
+    "label": "Dataset Name",
+    "data": [value1, value2, value3, ...],
+    "backgroundColor": ["color1", "color2", "color3", ...],
+    "borderColor": ["color1", "color2", "color3", ...],
+    "borderWidth": 1
+  }]
+}
+Only provide the raw JSON data, with no introduction or explanation. Be precise and concise.`;
+
+      case "Pie Chart":
+        return `You are a pie chart data generator. When given a topic, generate data in JSON format with labels and datasets. The data should be in the following format:
+{
+  "labels": ["Category1", "Category2", "Category3", ...],
+  "datasets": [{
+    "label": "Chart Title",
+    "data": [value1, value2, value3, ...],
+    "backgroundColor": ["rgba(255, 99, 132, 0.8)", "rgba(54, 162, 235, 0.8)", "rgba(255, 206, 86, 0.8)", ...],
+    "borderColor": ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)", "rgba(255, 206, 86, 1)", ...],
+    "borderWidth": 1
+  }]
+}
+Only provide the raw JSON data, with no introduction or explanation. Be precise and concise.`;
+
       case "Timeline":
         return `You are a historical timeline data generator. When given a historical topic, generate a timeline of key events in the format "year:event" with each event on a new line. Focus on the most significant events, and provide around 10-20 entries for a comprehensive but manageable timeline. Only provide the raw data in the year:event format, with no introduction or explanation. Ensure all leading spaces are trimmed. Be precise and concise. Example format:
 1945:World War II ended
@@ -220,8 +292,57 @@ Threats
 1. Competitors
 2. Economic downturn`;
 
+      case "Doughnut Chart":
+        return `You are a doughnut chart data generator. When given a topic, generate data in JSON format with labels and datasets. The data should be in the following format:
+{
+  "labels": ["Category1", "Category2", "Category3", ...],
+  "datasets": [{
+    "label": "Chart Title",
+    "data": [value1, value2, value3, ...],
+    "backgroundColor": ["rgba(255, 99, 132, 0.8)", "rgba(54, 162, 235, 0.8)", "rgba(255, 206, 86, 0.8)", ...],
+    "borderColor": ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)", "rgba(255, 206, 86, 1)", ...],
+    "borderWidth": 1
+  }]
+}
+Only provide the raw JSON data, with no introduction or explanation. Be precise and concise.`;
+
+      case "Line Chart":
+        return `You are a line chart data generator. When given a topic, generate data in JSON format with labels and datasets. The data should be in the following format:
+{
+  "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  "datasets": [
+    {
+      "label": "Dataset Name 1",
+      "data": [value1, value2, value3, ...],
+      "borderColor": "rgb(255, 99, 132)",
+      "backgroundColor": "rgba(255, 99, 132, 0.5)"
+    },
+    {
+      "label": "Dataset Name 2",
+      "data": [value1, value2, value3, ...],
+      "borderColor": "rgb(53, 162, 235)",
+      "backgroundColor": "rgba(53, 162, 235, 0.5)"
+    }
+  ]
+}
+Only provide the raw JSON data, with no introduction or explanation. Be precise and concise.`;
+
+      case "Knob Chart":
+        return `You are a knob chart data generator. When given a topic, generate data in JSON format with labels and datasets. The data should be in the following format:
+{
+  "labels": ["Category1", "Category2", "Category3", ...],
+  "datasets": [{
+    "label": "Chart Title",
+    "data": [value1, value2, value3, ...],
+    "backgroundColor": ["rgba(255, 99, 132, 0.8)", "rgba(54, 162, 235, 0.8)", "rgba(255, 206, 86, 0.8)", ...],
+    "borderColor": ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)", "rgba(255, 206, 86, 1)", ...],
+    "borderWidth": 1
+  }]
+}
+Only provide the raw JSON data, with no introduction or explanation. Be precise and concise.`;
+
       default:
-        return `You are a teacher. Provide clear and explanatory answers. Ensure all leading spaces are trimmed and avoid unnecessary details.`;
+        return "You are a helpful assistant. Provide clear and explanatory answers. Ensure all leading spaces are trimmed and avoid unnecessary details.";
     }
   };
 
@@ -342,6 +463,52 @@ Threats
   // Get data input placeholder text based on selected template (for manual input textarea)
   const getDataInputPlaceholder = () => {
     switch (selected) {
+      case "Bar Chart":
+        return `Format: JSON with labels and datasets
+
+Example:
+{
+  "labels": ["January", "February", "March", "April"],
+  "datasets": [{
+    "label": "Sales 2023",
+    "data": [65, 59, 80, 81],
+    "backgroundColor": "rgba(75, 192, 192, 0.6)",
+    "borderColor": "rgba(75, 192, 192, 1)",
+    "borderWidth": 1
+  }]
+}
+
+Enter your bar chart data above...`;
+
+      case "Pie Chart":
+        return `Format: JSON with labels and datasets
+
+Example:
+{
+  "labels": ["Company A", "Company B", "Company C", "Company D", "Company E"],
+  "datasets": [{
+    "label": "Market Share by Company",
+    "data": [40, 25, 20, 10, 5],
+    "backgroundColor": [
+      "rgba(128, 0, 38, 0.8)",
+      "rgba(165, 0, 38, 0.8)",
+      "rgba(200, 0, 38, 0.8)",
+      "rgba(235, 0, 38, 0.8)",
+      "rgba(255, 51, 51, 0.8)"
+    ],
+    "borderColor": [
+      "rgba(128, 0, 38, 1)",
+      "rgba(165, 0, 38, 1)",
+      "rgba(200, 0, 38, 1)",
+      "rgba(235, 0, 38, 1)",
+      "rgba(255, 51, 51, 1)"
+    ],
+    "borderWidth": 1
+  }]
+}
+
+Enter your pie chart data above...`;
+
       case "Timeline":
         return `Format: year:event description
 
@@ -425,6 +592,65 @@ Threats
 3. Regulatory changes
 
 Enter your SWOT analysis above...`;
+
+      case "Doughnut Chart":
+        return `Format: JSON with labels and datasets
+
+Example:
+{
+  "labels": ["India", "China", "United States", "Pakistan", "EU"],
+  "datasets": [{
+    "label": "Countries by Irrigated Land Area",
+    "data": [558080, 545960, 223850, 182300, 168050],
+    "backgroundColor": [
+      "rgba(128, 0, 38, 0.8)",
+      "rgba(165, 0, 38, 0.8)",
+      "rgba(200, 0, 38, 0.8)",
+      "rgba(235, 0, 38, 0.8)",
+      "rgba(255, 51, 51, 0.8)"
+    ],
+    "borderColor": [
+      "rgba(128, 0, 38, 1)",
+      "rgba(165, 0, 38, 1)",
+      "rgba(200, 0, 38, 1)",
+      "rgba(235, 0, 38, 1)",
+      "rgba(255, 51, 51, 1)"
+    ],
+    "borderWidth": 1
+  }]
+}
+
+Enter your doughnut chart data above...`;
+
+      case "Line Chart":
+        return `Format: JSON with labels and datasets
+
+Example:
+{
+  "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  "datasets": [
+    {
+      "label": "Affordable Segment",
+      "data": [140, 125, 120, 110, 105, 105, 115, 130, 145, 155, 160, 165],
+      "borderColor": "rgb(255, 99, 132)",
+      "backgroundColor": "rgba(255, 99, 132, 0.5)"
+    },
+    {
+      "label": "Luxury Segment",
+      "data": [135, 120, 140, 133, 106, 106, 126, 140, 150, 160, 170, 175],
+      "borderColor": "rgb(53, 162, 235)",
+      "backgroundColor": "rgba(53, 162, 235, 0.5)"
+    },
+    {
+      "label": "Super Luxury Segment",
+      "data": [125, 135, 145, 155, 166, 166, 176, 150, 165, 170, 185, 190],
+      "borderColor": "rgb(75, 192, 192)",
+      "backgroundColor": "rgba(75, 192, 192, 0.5)"
+    }
+  ]
+}
+
+Enter your line chart data above...`;
 
       case "Pro":
         return `Enter your advanced data for professional analysis...

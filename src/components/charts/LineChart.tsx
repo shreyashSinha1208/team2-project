@@ -1,45 +1,116 @@
 "use client";
 
 import React from "react";
-import FusionCharts from "fusioncharts";
-import Charts from "fusioncharts/fusioncharts.charts";
-import ReactFC from "react-fusioncharts";
-import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+import { ChartJsData } from "@/components/types";
 
-ReactFC.fcRoot(FusionCharts, Charts, FusionTheme);
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
-interface Props {
+interface LineChartProps {
   rawData: string;
 }
 
-export default function LineChart({ rawData }: Props) {
-  const parsedData = rawData
-    .split("\n")
-    .map(line => line.trim())
-    .filter(line => line.includes(":"))
-    .map(line => {
-      const [label, value] = line.split(":");
-      return {
-        label: label.trim(),
-        value: value.trim()
-      };
-    });
-
-  const chartConfigs = {
-    type: "line",
-    width: "100%",
-    height: 400,
-    dataFormat: "json",
-    dataSource: {
-      chart: {
-        caption: "Line Chart",
-        xAxisName: "Label",
-        yAxisName: "Value",
-        theme: "fusion",
-      },
-      data: parsedData,
-    }
+const LineChart: React.FC<LineChartProps> = ({ rawData }) => {
+  let data: ChartJsData = {
+    labels: [],
+    datasets: [],
   };
 
-  return <ReactFC {...chartConfigs} />;
-}
+  try {
+    const parsedData = JSON.parse(rawData);
+    data = parsedData;
+  } catch (err) {
+    console.error("Failed to parse line chart data:", err);
+  }
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      mode: "index" as const,
+      intersect: false,
+    },
+    plugins: {
+      legend: {
+        position: "top" as const,
+        labels: {
+          usePointStyle: true,
+          pointStyle: "circle",
+          padding: 15,
+        },
+      },
+      title: {
+        display: true,
+        text: data.datasets[0]?.label || "Monthly Sales Distribution",
+        font: {
+          size: 16,
+        },
+        padding: {
+          top: 10,
+          bottom: 30,
+        },
+      },
+      tooltip: {
+        mode: "index" as const,
+        intersect: false,
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          color: "#666",
+        },
+      },
+      y: {
+        grid: {
+          color: "#ddd",
+          drawBorder: false,
+        },
+        ticks: {
+          color: "#666",
+        },
+        min: Math.min(...(data.datasets?.[0]?.data || [0])) - 10,
+        max: Math.max(...(data.datasets?.[0]?.data || [100])) + 10,
+      },
+    },
+    elements: {
+      line: {
+        tension: 0.4, // Makes the line curved
+      },
+      point: {
+        radius: 4,
+        hoverRadius: 6,
+      },
+    },
+  };
+
+  return (
+    <div className="w-full h-[60vh] p-4 bg-white rounded-lg">
+      <Line data={data} options={options} />
+    </div>
+  );
+};
+
+export default LineChart;
