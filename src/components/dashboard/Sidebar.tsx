@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux"; // Import useDispatch and useSelector
 import { RootState } from "@/app/store/store"; // Import RootState
-import { setItems, setTimelineData, setListViewData, setFlashcardData } from "@/app/store/dataSlice"; // Import Redux actions
+import { setItems, setTimelineData, setListViewData, setFlashcardData, setMindfullnessData } from "@/app/store/dataSlice"; // Import Redux actions
 import {
   // setItems,
   // setTimelineData,
@@ -110,6 +110,14 @@ const options: TemplateOption[] = [
     gradientFrom: "from-purple-400",
     gradientTo: "to-purple-600",
   },
+  {
+    key: "Mindfullness",
+    icon: Layout,
+    description: "Mindfulness / Brain Break Cards",
+    color: "bg-purple-500",
+    gradientFrom: "from-sky-400",
+    gradientTo: "to-sky-600",
+  },
 ];
 
 export default function TemplateSidebar({
@@ -129,6 +137,9 @@ export default function TemplateSidebar({
   );
   const flashcardData = useSelector(
     (state: RootState) => state.swot.flashcardData
+  );
+  const mindfullnessData = useSelector(
+    (state: RootState) => state.swot.mindfullnessData
   );
   const qnaReduxData = useSelector((state: RootState) => state.swot.qnaData);
 
@@ -159,6 +170,8 @@ export default function TemplateSidebar({
         setManualInputText(listViewReduxData);
       } else if (selected === "Flashcard") {
         setManualInputText(flashcardData);
+      }else if (selected === "Mindfullness") {
+        setManualInputText(mindfullnessData);
       } else if (selected === "Q&A") {
         const qnaArray = Array.isArray(qnaReduxData) ? qnaReduxData : [];
         setManualInputText(qnaArray.join("\n"));
@@ -167,7 +180,7 @@ export default function TemplateSidebar({
         setManualInputText(currentRawData);
       }
     }
-  }, [activeTab, selected, swotItems, timelineReduxData, listViewReduxData, currentRawData, flashcardData]);
+  }, [activeTab, selected, swotItems, timelineReduxData, listViewReduxData, currentRawData, flashcardData,mindfullnessData]);
   // }, [
   //   activeTab,
   //   selected,
@@ -243,6 +256,15 @@ What is JSX?:A syntax extension for JavaScript
 What is a Component?:A reusable piece of UI
 What is State?:An object that holds data that may change`;
 
+
+  case "Mindfulness":
+    return `You are a mindfulness and wellness card generator. When given a topic related to mental health, stress relief, or wellness, generate a series of mindfulness cards in the format "title:description" with each card on a new line. The title should be a concise mindfulness activity or concept, and the description should provide clear, calming instructions or prompts. Focus on breathing exercises, meditation techniques, grounding exercises, and relaxation methods. Provide 5-10 cards that promote mental wellbeing. Only provide the raw data in the title:description format, with no introduction or explanation. Ensure all leading spaces are trimmed. Be precise and therapeutic. Example format:
+Deep Breathing:Breathe in as the circle expands, and out as it contracts. Follow for 5 cycles.
+Body Scan:Start from your toes and slowly move attention up through your body, noticing any sensations.
+5-4-3-2-1 Grounding:Notice 5 things you see, 4 you can touch, 3 you hear, 2 you smell, 1 you taste.
+Mindful Moment:Take a moment to notice your surroundings. What do you see, hear, and feel?
+Progressive Relaxation:Tense and release each muscle group, starting from your feet up to your head.`;
+
       default:
         return `You are a teacher. Provide clear and explanatory answers. Ensure all leading spaces are trimmed and avoid unnecessary details.`;
     }
@@ -303,6 +325,8 @@ What is State?:An object that holds data that may change`;
           dispatch(setListViewData(aiReply));
         } else if (selected === "Flashcard") {
           dispatch(setFlashcardData(aiReply));
+        }else if (selected === "Mindfullness") {
+          dispatch(setMindfullnessData(aiReply));
         }
 
         // Update manual input text with AI response
@@ -324,7 +348,7 @@ What is State?:An object that holds data that may change`;
   // This useEffect might be less relevant now that AI is in Data tab,
   // but keeping it for now in case there's a specific flow intended.
   useEffect(() => {
-    if (["Timeline", "Q&A", "List", "Hierarchy", "Swot", "Flashcard"].includes(selected)) {
+    if (["Timeline", "Q&A", "List", "Hierarchy", "Swot", "Flashcard","Mindfullness"].includes(selected)) {
       // You might want to setActiveTab("data") here if the intent is to always
       // switch to data tab when a templated chart is selected.
       // setShowPrompt(true); // This would auto-open the AI prompt box
@@ -346,6 +370,8 @@ What is State?:An object that holds data that may change`;
         return "Enter a topic for SWOT analysis (e.g., business expansion, product launch)...";
       case "Flashcard":
         return "Enter a topic for flashcard generation (e.g., React concepts, JavaScript fundamentals)...";
+      case "Mindfullness":
+        return "Enter a topic for mindfulness generation (e.g., mindfulness, brain break)...";
       default:
         return "Enter your prompt...";
     }
@@ -370,6 +396,8 @@ What is State?:An object that holds data that may change`;
         return "Generate SWOT Analysis";
       case "Flashcard":
         return "Generate Flashcards";
+      case "Mindfullness":
+        return "Generate Mindfulness";
       default:
         return "Ask AI";
     }
@@ -473,6 +501,21 @@ What is State?:An object that holds data that may change
 
 Enter your flashcard data above...`;
 
+
+//       case "Mindfullness":
+//         return `Format: title:description
+
+// Example:
+// Deep Breathing:Breathe in as the circle expands, and out as it contracts. Follow for 5 cycles.
+// Body Scan:Start from your toes and slowly move attention up through your body, noticing any sensations.
+// 5-4-3-2-1 Grounding:Notice 5 things you see, 4 you can touch, 3 you hear, 2 you smell, 1 you taste.
+// Mindful Moment:Take a moment to notice your surroundings. What do you see, hear, and feel?
+// Progressive Relaxation:Tense and release each muscle group, starting from your feet up to your head.
+// Loving Kindness:Send positive thoughts to yourself, then to loved ones, then to all beings.
+// Present Awareness:Focus entirely on this moment. What thoughts and feelings arise without judgment?
+
+// Enter your mindfulness card data above...`;
+
       case "Pro":
         return `Enter your advanced data for professional analysis...
 
@@ -505,6 +548,8 @@ The format will depend on your selected template.`;
       dispatch(setListViewData(value));
     } else if (selected === "Flashcard") {
       dispatch(setFlashcardData(value));
+    }else if (selected === "Mindfullness") {
+      dispatch(setMindfullnessData(value));
     } else if (selected === "Q&A") {
       const qnaLines = value
         .split("\n")

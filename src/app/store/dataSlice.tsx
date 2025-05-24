@@ -111,6 +111,7 @@ interface SWOTState {
   timelineData: string;   // Timeline data
   listViewData: string;   // List view data
   flashcardData: string;  // Flashcard data
+  mindfullnessData: string;
   qnaData: string[];      // Q&A data
 }
 
@@ -133,6 +134,7 @@ const initialState: SWOTState = {
     What is a Component?:A reusable piece of UI that can accept props and manage state
     What is State?:An object that holds data that may change over time in a component
   `,
+  mindfullnessData:'',
   qnaData: [],
 };
 
@@ -157,6 +159,9 @@ const swotSlice = createSlice({
     },
     setFlashcardData(state, action: PayloadAction<string>) {
       state.flashcardData = action.payload;
+    },
+    setMindfullnessData(state, action: PayloadAction<string>) {
+      state.mindfullnessData = action.payload;
     },
     // QnA Actions
     setQnAData(state, action: PayloadAction<string[]>) {
@@ -183,6 +188,7 @@ export const {
   setTimelineData,
   setListViewData,
   setFlashcardData,
+  setMindfullnessData,
   setQnAData,
   addQnAItem,
   editQnAItem,
