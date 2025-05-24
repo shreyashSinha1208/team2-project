@@ -1,13 +1,57 @@
 "use client";
 
 import React from "react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 import { Bar } from "react-chartjs-2";
 import { ChartJsData } from "@/components/types";
 
-interface Props {
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+interface BarChartProps {
   data: ChartJsData;
 }
 
-export default function BarChart({ data }: Props) {
-  return <Bar data={data} options={{ maintainAspectRatio: false }} />;
-}
+const BarChart: React.FC<BarChartProps> = ({ data }) => {
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top" as const,
+      },
+      title: {
+        display: true,
+        text: "Bar Chart",
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
+  return (
+    <div className="w-full h-[60vh] p-4">
+      <Bar options={options} data={data} />
+    </div>
+  );
+};
+
+export default BarChart;
