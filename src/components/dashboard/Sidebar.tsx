@@ -5,6 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux"; // Import useDispatch and useSelector
 import { RootState } from "@/app/store/store"; // Import RootState
 import { setItems, setTimelineData, setListViewData, setFlashcardData } from "@/app/store/dataSlice"; // Import Redux actions
+import {
+  // setItems,
+  // setTimelineData,
+  // setListViewData,
+  setQnAData,
+} from "@/app/store/dataSlice"; // Import Redux actions
 
 import {
   Grid,
@@ -124,6 +130,7 @@ export default function TemplateSidebar({
   const flashcardData = useSelector(
     (state: RootState) => state.swot.flashcardData
   );
+  const qnaReduxData = useSelector((state: RootState) => state.swot.qnaData);
 
   const [showPrompt, setShowPrompt] = useState(false);
   const [prompt, setPrompt] = useState("");
@@ -152,12 +159,24 @@ export default function TemplateSidebar({
         setManualInputText(listViewReduxData);
       } else if (selected === "Flashcard") {
         setManualInputText(flashcardData);
+      } else if (selected === "Q&A") {
+        const qnaArray = Array.isArray(qnaReduxData) ? qnaReduxData : [];
+        setManualInputText(qnaArray.join("\n"));
       } else {
         // For other templates, use the currentRawData passed from DashboardPage
         setManualInputText(currentRawData);
       }
     }
   }, [activeTab, selected, swotItems, timelineReduxData, listViewReduxData, currentRawData, flashcardData]);
+  // }, [
+  //   activeTab,
+  //   selected,
+  //   swotItems,
+  //   timelineReduxData,
+  //   listViewReduxData,
+  //   qnaReduxData,
+  //   currentRawData,
+  // ]);
 
   // Filtered options based on search input
   const filteredOptions = options.filter(
@@ -481,11 +500,17 @@ The format will depend on your selected template.`;
         .filter(Boolean);
       dispatch(setItems(lines));
     } else if (selected === "Timeline") {
-      dispatch(setTimelineData(value))
+      dispatch(setTimelineData(value));
     } else if (selected === "List") {
       dispatch(setListViewData(value));
     } else if (selected === "Flashcard") {
       dispatch(setFlashcardData(value));
+    } else if (selected === "Q&A") {
+      const qnaLines = value
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);
+      dispatch(setQnAData(qnaLines));
     } else if (onManualDataChange) {
       // For other templates, pass the value up to DashboardPage
       onManualDataChange(value);
@@ -776,7 +801,9 @@ The format will depend on your selected template.`;
                       whileHover={{ scale: loading ? 1 : 1.02 }}
                       whileTap={{ scale: loading ? 1 : 0.98 }}
                     >
-                      {loading && <Loader2 size={16} className="animate-spin" />}
+                      {loading && (
+                        <Loader2 size={16} className="animate-spin" />
+                      )}
                       {getButtonText()}
                     </motion.button>
 
