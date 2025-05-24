@@ -8,10 +8,10 @@ export interface TreeNode {
 export interface ChartJsData {
   labels: string[];
   datasets: {
-    label?: string;
+    label: string;
     data: number[];
-    backgroundColor?: string|string[];
-    borderColor?: string|string[];
+    backgroundColor?: string | string[];
+    borderColor?: string | string[];
     borderWidth?: number;
   }[];
 }
