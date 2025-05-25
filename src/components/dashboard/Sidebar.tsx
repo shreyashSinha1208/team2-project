@@ -406,7 +406,6 @@
 // What is a Component?:A reusable piece of UI
 // What is State?:An object that holds data that may change`;
 
-
 //   case "Mindfulness":
 //     return `You are a mindfulness and wellness card generator. When given a topic related to mental health, stress relief, or wellness, generate a series of mindfulness cards in the format "title:description" with each card on a new line. The title should be a concise mindfulness activity or concept, and the description should provide clear, calming instructions or prompts. Focus on breathing exercises, meditation techniques, grounding exercises, and relaxation methods. Provide 5-10 cards that promote mental wellbeing. Only provide the raw data in the title:description format, with no introduction or explanation. Ensure all leading spaces are trimmed. Be precise and therapeutic. Example format:
 // Deep Breathing:Breathe in as the circle expands, and out as it contracts. Follow for 5 cycles.
@@ -499,7 +498,7 @@
 //         // Auto-hide the prompt box after successful generation
 //         setTimeout(() => setShowPrompt(false), 1000);
 //       }
-//     } 
+//     }
 //     catch (err: any) {
 //       console.error(err);
 //       setError(
@@ -589,21 +588,20 @@
 //     }
 //   };
 
-
-
-
-
-
 "use client";
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux"; // Import useDispatch and useSelector
 import { RootState } from "@/app/store/store"; // Import RootState
-import { setItems, setTimelineData, setListViewData, setFlashcardData, setMindfullnessData } from "@/app/store/dataSlice"; // Import Redux actions
 import {
-  setQnAData,
+  setItems,
+  setTimelineData,
+  setListViewData,
+  setFlashcardData,
+  setMindfullnessData,
 } from "@/app/store/dataSlice"; // Import Redux actions
+import { setQnAData } from "@/app/store/dataSlice"; // Import Redux actions
 
 import {
   Grid,
@@ -825,7 +823,17 @@ export default function TemplateSidebar({
         setManualInputText(currentRawData);
       }
     }
-  }, [activeTab, selected, swotItems, timelineReduxData, listViewReduxData, currentRawData, flashcardData, mindfullnessData, qnaReduxData]);
+  }, [
+    activeTab,
+    selected,
+    swotItems,
+    timelineReduxData,
+    listViewReduxData,
+    currentRawData,
+    flashcardData,
+    mindfullnessData,
+    qnaReduxData,
+  ]);
 
   // Filtered options based on search input
   const filteredOptions = options.filter(
@@ -1181,55 +1189,14 @@ Progressive Relaxation:Tense and release each muscle group, starting from your f
     }
   };
 
-
   // Get data input placeholder text based on selected template (for manual input textarea)
   const getDataInputPlaceholder = () => {
     switch (selected) {
       case "Bar Chart":
-        return `Format: JSON with labels and datasets
-
-Example:
-{
-  "labels": ["January", "February", "March", "April"],
-  "datasets": [{
-    "label": "Sales 2023",
-    "data": [65, 59, 80, 81],
-    "backgroundColor": "rgba(75, 192, 192, 0.6)",
-    "borderColor": "rgba(75, 192, 192, 1)",
-    "borderWidth": 1
-  }]
-}
-
-Enter your bar chart data above...`;
+        return `Data : value`;
 
       case "Pie Chart":
-        return `Format: JSON with labels and datasets
-
-Example:
-{
-  "labels": ["Company A", "Company B", "Company C", "Company D", "Company E"],
-  "datasets": [{
-    "label": "Market Share by Company",
-    "data": [40, 25, 20, 10, 5],
-    "backgroundColor": [
-      "rgba(128, 0, 38, 0.8)",
-      "rgba(165, 0, 38, 0.8)",
-      "rgba(200, 0, 38, 0.8)",
-      "rgba(235, 0, 38, 0.8)",
-      "rgba(255, 51, 51, 0.8)"
-    ],
-    "borderColor": [
-      "rgba(128, 0, 38, 1)",
-      "rgba(165, 0, 38, 1)",
-      "rgba(200, 0, 38, 1)",
-      "rgba(235, 0, 38, 1)",
-      "rgba(255, 51, 51, 1)"
-    ],
-    "borderWidth": 1
-  }]
-}
-
-Enter your pie chart data above...`;
+        return `Data : value`;
 
       case "Timeline":
         return `Format: year:event description
@@ -1326,78 +1293,24 @@ What is State?:An object that holds data that may change
 
 Enter your flashcard data above...`;
 
+      //       case "Mindfullness":
+      //         return `Format: title:description
 
-//       case "Mindfullness":
-//         return `Format: title:description
+      // Example:
+      // Deep Breathing:Breathe in as the circle expands, and out as it contracts. Follow for 5 cycles.
+      // Body Scan:Start from your toes and slowly move attention up through your body, noticing any sensations.
+      // 5-4-3-2-1 Grounding:Notice 5 things you see, 4 you can touch, 3 you hear, 2 you smell, 1 you taste.
+      // Mindful Moment:Take a moment to notice your surroundings. What do you see, hear, and feel?
+      // Progressive Relaxation:Tense and release each muscle group, starting from your feet up to your head.
+      // Loving Kindness:Send positive thoughts to yourself, then to loved ones, then to all beings.
+      // Present Awareness:Focus entirely on this moment. What thoughts and feelings arise without judgment?
 
-// Example:
-// Deep Breathing:Breathe in as the circle expands, and out as it contracts. Follow for 5 cycles.
-// Body Scan:Start from your toes and slowly move attention up through your body, noticing any sensations.
-// 5-4-3-2-1 Grounding:Notice 5 things you see, 4 you can touch, 3 you hear, 2 you smell, 1 you taste.
-// Mindful Moment:Take a moment to notice your surroundings. What do you see, hear, and feel?
-// Progressive Relaxation:Tense and release each muscle group, starting from your feet up to your head.
-// Loving Kindness:Send positive thoughts to yourself, then to loved ones, then to all beings.
-// Present Awareness:Focus entirely on this moment. What thoughts and feelings arise without judgment?
-
-// Enter your mindfulness card data above...`;
+      // Enter your mindfulness card data above...`;
       case "Doughnut Chart":
-        return `Format: JSON with labels and datasets
-
-Example:
-{
-  "labels": ["India", "China", "United States", "Pakistan", "EU"],
-  "datasets": [{
-    "label": "Countries by Irrigated Land Area",
-    "data": [558080, 545960, 223850, 182300, 168050],
-    "backgroundColor": [
-      "rgba(128, 0, 38, 0.8)",
-      "rgba(165, 0, 38, 0.8)",
-      "rgba(200, 0, 38, 0.8)",
-      "rgba(235, 0, 38, 0.8)",
-      "rgba(255, 51, 51, 0.8)"
-    ],
-    "borderColor": [
-      "rgba(128, 0, 38, 1)",
-      "rgba(165, 0, 38, 1)",
-      "rgba(200, 0, 38, 1)",
-      "rgba(235, 0, 38, 1)",
-      "rgba(255, 51, 51, 1)"
-    ],
-    "borderWidth": 1
-  }]
-}
-
-Enter your doughnut chart data above...`;
+        return `Data : value`;
 
       case "Line Chart":
-        return `Format: JSON with labels and datasets
-
-Example:
-{
-  "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-  "datasets": [
-    {
-      "label": "Affordable Segment",
-      "data": [140, 125, 120, 110, 105, 105, 115, 130, 145, 155, 160, 165],
-      "borderColor": "rgb(255, 99, 132)",
-      "backgroundColor": "rgba(255, 99, 132, 0.5)"
-    },
-    {
-      "label": "Luxury Segment",
-      "data": [135, 120, 140, 133, 106, 106, 126, 140, 150, 160, 170, 175],
-      "borderColor": "rgb(53, 162, 235)",
-      "backgroundColor": "rgba(53, 162, 235, 0.5)"
-    },
-    {
-      "label": "Super Luxury Segment",
-      "data": [125, 135, 145, 155, 166, 166, 176, 150, 165, 170, 185, 190],
-      "borderColor": "rgb(75, 192, 192)",
-      "backgroundColor": "rgba(75, 192, 192, 0.5)"
-    }
-  ]
-}
-
-Enter your line chart data above...`;
+        return `Data : value`;
 
       case "Pro":
         return `Enter your advanced data for professional analysis...
@@ -1467,7 +1380,7 @@ The format will depend on your selected template.`;
       dispatch(setListViewData(value));
     } else if (selected === "Flashcard") {
       dispatch(setFlashcardData(value));
-    }else if (selected === "Mindfullness") {
+    } else if (selected === "Mindfullness") {
       dispatch(setMindfullnessData(value));
     } else if (selected === "Q&A") {
       const qnaLines = value
@@ -1601,75 +1514,81 @@ The format will depend on your selected template.`;
             {/* Template options */}
             <div className="flex-1 px-4 pt-2 pb-6 overflow-y-scroll scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
               <div className=" h-[100vh]">
-              <div className="grid grid-cols-2 gap-3">
-                {filteredOptions.map((option) => (
-                  <motion.button
-                    key={option.key}
-                    onClick={() => onSelect(option.key)}
-                    className={`relative flex ${
-                      option.key === selected ? "flex-row" : "flex-col"
-                    } items-center justify-center p-4 rounded-xl
+                <div className="grid grid-cols-2 gap-3">
+                  {filteredOptions.map((option) => (
+                    <motion.button
+                      key={option.key}
+                      onClick={() => onSelect(option.key)}
+                      className={`relative flex ${
+                        option.key === selected ? "flex-row" : "flex-col"
+                      } items-center justify-center p-4 rounded-xl
                       ${
                         option.key === selected
                           ? `bg-gradient-to-br ${option.gradientFrom} ${option.gradientTo} shadow-lg shadow-${option.color}/20`
                           : "bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60"
                       } 
                       transition-all duration-300`}
-                    initial={false}
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 400,
-                      damping: 17
-                    }}
-                    onMouseEnter={() => {
-                      setTooltipContent(option);
-                      setShowTooltip(true);
-                    }}
-                    onMouseLeave={() => {
-                      setShowTooltip(false);
-                    }}
-                  >
-                    <div
-                      className={`${
-                        option.key === selected ? "" : option.color
-                      } ${
-                        option.key !== selected ? "p-2 rounded-lg mb-2" : ""
-                      }`}
+                      initial={false}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 17,
+                      }}
+                      onMouseEnter={() => {
+                        setTooltipContent(option);
+                        setShowTooltip(true);
+                      }}
+                      onMouseLeave={() => {
+                        setShowTooltip(false);
+                      }}
                     >
-                      <option.icon
-                        size={26}
-                        className={option.key === selected ? "text-white" : "text-white"}
-                      />
-                    </div>
-
-                    <motion.span
-                      className={`${
-                        option.key === selected
-                          ? "text-white font-medium ml-3"
-                          : "mt-2 text-slate-200 font-medium"
-                      } text-sm`}
-                      layout
-                    >
-                      {option.key}
-                    </motion.span>
-
-                    {option.key === selected && (
-                      <motion.div
-                        className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-lg"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        layoutId="selectedDot"
+                      <div
+                        className={`${
+                          option.key === selected ? "" : option.color
+                        } ${
+                          option.key !== selected ? "p-2 rounded-lg mb-2" : ""
+                        }`}
                       >
-                        <span className={`${option.color} text-white text-xs`}>
-                          ✓
-                        </span>
-                      </motion.div>
-                    )}
-                  </motion.button>
-                ))}
-              </div>
+                        <option.icon
+                          size={26}
+                          className={
+                            option.key === selected
+                              ? "text-white"
+                              : "text-white"
+                          }
+                        />
+                      </div>
+
+                      <motion.span
+                        className={`${
+                          option.key === selected
+                            ? "text-white font-medium ml-3"
+                            : "mt-2 text-slate-200 font-medium"
+                        } text-sm`}
+                        layout
+                      >
+                        {option.key}
+                      </motion.span>
+
+                      {option.key === selected && (
+                        <motion.div
+                          className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-lg"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          layoutId="selectedDot"
+                        >
+                          <span
+                            className={`${option.color} text-white text-xs`}
+                          >
+                            ✓
+                          </span>
+                        </motion.div>
+                      )}
+                    </motion.button>
+                  ))}
+                </div>
               </div>
             </div>
           </motion.div>

@@ -1,83 +1,117 @@
 "use client";
 
 import React from "react";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from "chart.js";
-import { Doughnut } from "react-chartjs-2";
-import { ChartJsData } from "@/components/types";
-import ChartDataLabels from "chartjs-plugin-datalabels";
+import FusionCharts from "fusioncharts";
+import Charts from "fusioncharts/fusioncharts.charts";
+import ReactFusioncharts from "react-fusioncharts";
+import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
 
-// Register ChartJS components
-ChartJS.register(ArcElement, Tooltip, Legend, Title);
+// Initialize FusionCharts only on client side
+if (typeof window !== "undefined") {
+  // Disable credits label
+  FusionCharts.options.creditLabel = false;
+
+  // Initialize core FusionCharts with basic charts
+  ReactFusioncharts.fcRoot(FusionCharts, Charts, FusionTheme);
+}
+
+// Default data
+const defaultData = {
+  Norway: 99,
+  United_States: 89,
+  India: 54,
+  Nigeria: 50,
+  South_Africa: 72,
+  Germany: 93,
+  Brazil: 78,
+};
 
 interface DoughnutChartProps {
-  data: ChartJsData;
+  data?: { [key: string]: number };
 }
 
 const DoughnutChart: React.FC<DoughnutChartProps> = ({ data }) => {
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: "60%", // This makes it a doughnut chart by creating the hole in the middle
-    plugins: {
-      legend: {
-        position: "right" as const,
-        labels: {
-          padding: 20,
-          usePointStyle: true,
-          pointStyle: "circle",
-        },
+  // Ensure we have data by using default if none provided
+  const chartData = data && Object.keys(data).length > 0 ? data : defaultData;
+
+  // New vibrant color palette
+  const colors = [
+    "#2196F3", // Bright Blue
+    "#FF5722", // Deep Orange
+    "#4CAF50", // Green
+    "#9C27B0", // Purple
+    "#FFC107", // Amber
+    "#00BCD4", // Cyan
+    "#E91E63", // Pink
+    "#3F51B5", // Indigo
+  ];
+
+  // Transform the data format to FusionCharts format
+  const formattedData = Object.entries(chartData).map(
+    ([label, value], index) => ({
+      label,
+      value,
+      color: colors[index % colors.length],
+    })
+  );
+
+  const chartConfigs = {
+    type: "doughnut3d",
+    width: "100%",
+    height: "400",
+    dataFormat: "json",
+    dataSource: {
+      chart: {
+        caption: "Data Visualization",
+        theme: "fusion",
+        showPercentValues: "1",
+        decimals: "1",
+        useDataPlotColorForLabels: "1",
+        baseFont: "Inter",
+        baseFontSize: "14",
+        baseFontColor: "#333333",
+        showHoverEffect: "1",
+        plotHoverEffect: "1",
+        plotFillHoverAlpha: "80",
+        showBorder: "0",
+        bgColor: "#ffffff",
+        showShadow: "1",
+        use3DLighting: "1",
+        showLegend: "1",
+        legendPosition: "right",
+        legendBorderAlpha: "0",
+        legendShadow: "0",
+        legendItemFontSize: "14",
+        legendItemFontColor: "#666666",
+        enableSmartLabels: "1",
+        skipOverlapLabels: "1",
+        showLabels: "1",
+        showValues: "1",
+        showPercentInTooltip: "1",
+        toolTipColor: "#ffffff",
+        toolTipBorderThickness: "0",
+        toolTipBgColor: "#000000",
+        toolTipBgAlpha: "80",
+        toolTipBorderRadius: "4",
+        toolTipPadding: "8",
+        // Doughnut specific configurations
+        doughnutRadius: "70",
+        centerLabel: "Total: $value",
+        // Adjust margins for better spacing
+        chartTopMargin: "20",
+        chartBottomMargin: "20",
+        chartLeftMargin: "20",
+        chartRightMargin: "20",
       },
-      title: {
-        display: true,
-        text: data.datasets[0]?.label || "Doughnut Chart",
-        font: {
-          size: 16,
-        },
-        padding: {
-          top: 10,
-          bottom: 30,
-        },
-      },
-      tooltip: {
-        callbacks: {
-          label: function (context: any) {
-            const label = context.label || "";
-            const value = context.raw || 0;
-            const total = context.dataset.data.reduce(
-              (a: number, b: number) => a + b,
-              0
-            );
-            const percentage = Math.round((value / total) * 100);
-            return `${label}: ${value} (${percentage}%)`;
-          },
-        },
-      },
-      // Add plugin to display percentages in segments
-      datalabels: {
-        color: "#fff",
-        font: {
-          weight: "bold" as const,
-          size: 12,
-        },
-        formatter: (value: number, ctx: any) => {
-          const dataset = ctx.dataset;
-          const total = dataset.data.reduce(
-            (acc: number, data: number) => acc + data,
-            0
-          );
-          const percentage = Math.round((value / total) * 100);
-          return percentage + "%";
-        },
-        display: function (ctx: any) {
-          return ctx.dataset.data[ctx.dataIndex] > 0;
-        },
-      },
+      data: formattedData,
     },
   };
 
+  const Chart = ReactFusioncharts as any;
+
   return (
-    <div className="w-full h-[60vh] p-4">
-      <Doughnut data={data} options={options} plugins={[ChartDataLabels]} />
+    <div className="w-full h-full min-h-[400px] p-4">
+      <Chart {...chartConfigs} />
     </div>
   );
 };

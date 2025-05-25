@@ -82,35 +82,18 @@ export default function DashboardPage() {
   // State to track if the screen is considered "large" (>= 768px)
   const [isLargeScreen, setIsLargeScreen] = useState(false);
 
-  // Initialize rawData with sample data for Knob Chart
-  const [rawData, setRawData] = useState<string>(`{
-    "labels": ["Norway", "United States", "India", "Nigeria", "China", "South Africa", "Germany", "Brazil"],
-    "datasets": [{
-      "label": "Internet Penetration Rates by Country",
-      "data": [99, 89, 54, 50, 70, 72, 93, 78],
-      "backgroundColor": [
-        "rgba(128, 0, 38, 0.8)",
-        "rgba(165, 0, 38, 0.8)",
-        "rgba(200, 0, 38, 0.8)",
-        "rgba(235, 0, 38, 0.8)",
-        "rgba(255, 51, 51, 0.8)",
-        "rgba(255, 76, 76, 0.8)",
-        "rgba(255, 102, 102, 0.8)",
-        "rgba(255, 127, 127, 0.8)"
-      ],
-      "borderColor": [
-        "rgba(128, 0, 38, 1)",
-        "rgba(165, 0, 38, 1)",
-        "rgba(200, 0, 38, 1)",
-        "rgba(235, 0, 38, 1)",
-        "rgba(255, 51, 51, 1)",
-        "rgba(255, 76, 76, 1)",
-        "rgba(255, 102, 102, 1)",
-        "rgba(255, 127, 127, 1)"
-      ],
-      "borderWidth": 1
-    }]
-  }`);
+  // Initialize rawData with default bar chart data
+  const [rawData, setRawData] = useState<string>(
+    template === "Bar Chart"
+      ? `Norway: 99
+United_States: 89
+India: 54
+Nigeria: 50
+South_Africa: 72
+Germany: 93
+Brazil: 78`
+      : ""
+  );
 
   // Navigation items for the new vertical sidebar structure
   const navItems: NavItem[] = [
@@ -124,6 +107,23 @@ export default function DashboardPage() {
     setTemplate(newTemplate);
     setAnimateChart(true);
     setTimeout(() => setAnimateChart(false), 1000);
+
+    // Set default data for charts
+    if (
+      ["Bar Chart", "Pie Chart", "Doughnut Chart", "Knob Chart"].includes(
+        newTemplate
+      )
+    ) {
+      setRawData(`Norway: 99
+United_States: 89
+India: 54
+Nigeria: 50
+South_Africa: 72
+Germany: 93
+Brazil: 78`);
+    } else {
+      setRawData(""); // Clear data for other templates
+    }
   };
 
   const handleDataGenerated = (data: string) => {
@@ -254,7 +254,7 @@ export default function DashboardPage() {
           text: "text-pink-500",
           border: "border-pink-500",
           hoverBg: "hover:bg-pink-100",
-          lightBg: "bg-pink-50"
+          lightBg: "bg-pink-50",
         };
       case "Procedure Diagram":
         return {
@@ -263,7 +263,7 @@ export default function DashboardPage() {
           text: "text-teal-500",
           border: "border-teal-500",
           hoverBg: "hover:bg-teal-100",
-          lightBg: "bg-teal-50"
+          lightBg: "bg-teal-50",
         };
       default: // Added cases for Bar Chart, Pie Chart, Line Chart for consistent theming
         return {
@@ -444,8 +444,20 @@ export default function DashboardPage() {
                 <div className="w-full h-full">
                   {(() => {
                     try {
-                      const chartData = JSON.parse(rawData);
-                      return <KnobChart data={chartData} />;
+                      // Parse the key:value format data
+                      const lines = rawData
+                        .split("\n")
+                        .filter((line) => line.trim());
+                      const data: { [key: string]: number } = {};
+                      lines.forEach((line) => {
+                        const [key, value] = line
+                          .split(":")
+                          .map((part) => part.trim());
+                        if (key && value) {
+                          data[key] = Number(value);
+                        }
+                      });
+                      return <KnobChart data={data} />;
                     } catch (error) {
                       console.error("Error parsing Knob Chart data:", error);
                       return (
