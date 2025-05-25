@@ -1,107 +1,118 @@
 "use client";
 
 import React from "react";
-import { Doughnut } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import FusionCharts from "fusioncharts";
+import Charts from "fusioncharts/fusioncharts.charts";
+import ReactFusioncharts from "react-fusioncharts";
+import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+// Initialize FusionCharts only on client side
+if (typeof window !== "undefined") {
+  // Disable credits label
+  FusionCharts.options.creditLabel = false;
+
+  // Initialize core FusionCharts with basic charts
+  ReactFusioncharts.fcRoot(FusionCharts, Charts, FusionTheme);
+}
+
+// Default data
+const defaultData = {
+  Norway: 99,
+  United_States: 89,
+  India: 54,
+  Nigeria: 50,
+  South_Africa: 72,
+  Germany: 93,
+  Brazil: 78,
+};
 
 interface KnobChartProps {
-  data: {
-    labels: string[];
-    datasets: Array<{
-      label: string;
-      data: number[];
-      backgroundColor: string[];
-      borderColor?: string[];
-      borderWidth?: number;
-    }>;
-  };
+  data?: { [key: string]: number };
 }
 
 const KnobChart: React.FC<KnobChartProps> = ({ data }) => {
-  // Validate data structure
-  if (!data || !data.labels || !data.datasets || !data.datasets[0]) {
-    console.error("Invalid data structure:", data);
+  // Ensure we have data by using default if none provided
+  const chartData = data && Object.keys(data).length > 0 ? data : defaultData;
+
+  // Create a donut chart for each data entry
+  const charts = Object.entries(chartData).map(([label, value], index) => {
+    // Calculate the remaining percentage for the donut
+    const remaining = 100 - value;
+
+    // Get color based on value
+    const getColor = (val: number) => {
+      if (val >= 70) return "#800026"; // Dark red for high values
+      if (val >= 35) return "#BD0026"; // Medium red for medium values
+      return "#E31A1C"; // Light red for low values
+    };
+
+    const chartConfigs = {
+      type: "doughnut2d",
+      width: "100%",
+      height: "180",
+      dataFormat: "json",
+      dataSource: {
+        chart: {
+          showLabels: "0",
+          showValues: "0",
+          showPercentValues: "0",
+          showLegend: "0",
+          showToolTip: "0",
+          defaultCenterLabel: `${label}\n${value}%`,
+          centerLabelBold: "1",
+          centerLabelFontSize: "12",
+          centerLabelColor: "#333333",
+          centerLabelFont: "Inter",
+          doughnutRadius: "65",
+          slicingDistance: "0",
+          theme: "fusion",
+          showBorder: "0",
+          bgColor: "#FFFAF0", // Light yellow background
+          plotBorderAlpha: "0",
+          plotBorderColor: "#FFFFFF",
+          use3DLighting: "0",
+          enableSmartLabels: "0",
+          startingAngle: "90",
+          pieInnerRadius: "25",
+          chartTopMargin: "0",
+          chartBottomMargin: "0",
+          chartLeftMargin: "0",
+          chartRightMargin: "0",
+        },
+        data: [
+          {
+            label: "Filled",
+            value: value,
+            color: getColor(value),
+            alpha: "100",
+          },
+          {
+            label: "Remaining",
+            value: remaining,
+            color: "#FFFFFF",
+            alpha: "40",
+          },
+        ],
+      },
+    };
+
+    const Chart = ReactFusioncharts as any;
+
     return (
-      <div className="w-full p-4 text-center">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-600">
-            Error: Invalid data structure provided to KnobChart
-          </p>
-          <p className="text-red-400 text-sm mt-2">
-            Please ensure your data includes labels and datasets.
-          </p>
+      <div key={index} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-1">
+        <div className="bg-[#FFFAF0] rounded-lg p-2">
+          <Chart {...chartConfigs} />
         </div>
       </div>
     );
-  }
-
-  // Function to create individual knob data
-  const createKnobData = (value: number, color: string) => ({
-    labels: ["Completed", "Remaining"],
-    datasets: [
-      {
-        data: [value, 100 - value],
-        backgroundColor: [color, "#f0f0f0"],
-        borderWidth: 0,
-        circumference: 360,
-        rotation: -90,
-      },
-    ],
   });
 
-  // Options for individual knobs
-  const knobOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: "75%",
-    plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        enabled: false,
-      },
-    },
-  };
-
   return (
-    <div className="w-full p-4">
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-        {data.datasets[0].label || "Internet Penetration Rates by Country"}
+    <div className="w-full p-2">
+      <h2 className="text-xl font-semibold text-center mb-4 text-[#800026]">
+        Data Visualization
       </h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {data.labels.map((label, index) => {
-          const value = data.datasets[0].data[index];
-          const color = data.datasets[0].backgroundColor[index];
-
-          if (typeof value !== "number" || isNaN(value)) {
-            console.error(`Invalid value for ${label}:`, value);
-            return null;
-          }
-
-          const knobData = createKnobData(value, color as string);
-
-          return (
-            <div key={label} className="relative flex flex-col items-center">
-              <div className="w-32 h-32 relative">
-                <Doughnut data={knobData} options={knobOptions} />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <span className="text-2xl font-bold text-gray-800">
-                      {value}%
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <span className="mt-2 text-sm font-medium text-gray-700">
-                {label}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+      <div className="flex flex-wrap -mx-1">{charts}</div>
     </div>
   );
 };
