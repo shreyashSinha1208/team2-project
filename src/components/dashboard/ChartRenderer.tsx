@@ -78,7 +78,10 @@ function parseKeyValueData(rawData: string) {
     lines.forEach((line) => {
       const [key, value] = line.split(":").map((part) => part.trim());
       if (key && value) {
-        data[key] = Number(value);
+        const numValue = Number(value);
+        if (!isNaN(numValue)) {
+          data[key] = numValue;
+        }
       }
     });
 
@@ -180,7 +183,7 @@ export default function ChartRenderer({ template, rawData }: Props) {
     case "Bar Chart":
       const chartData = json && Object.keys(json).length > 0 ? json : null;
       return chartData ? (
-        <BarChart label={json.label || "Chart"} data={chartData} />
+        <BarChart data={chartData} />
       ) : (
         <ErrorMessage
           message="Please enter data in key: value format"

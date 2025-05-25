@@ -8,19 +8,30 @@ import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
 
 // Initialize FusionCharts only on client side
 if (typeof window !== "undefined") {
-  // Disable credits label
-  FusionCharts.options.creditLabel = false;
-
-  // Initialize core FusionCharts with basic charts
-  ReactFusioncharts.fcRoot(FusionCharts, Charts, FusionTheme);
+  try {
+    // Disable credits label
+    FusionCharts.options.creditLabel = false;
+    // Initialize core FusionCharts with basic charts
+    ReactFusioncharts.fcRoot(FusionCharts, Charts, FusionTheme);
+  } catch (error) {
+    console.error("Error initializing FusionCharts:", error);
+  }
 }
 
 interface BarChartProps {
-  label?: string; // Made optional since we'll get it from data
-  data: { [key: string]: number }; // This allows direct key-value pairs
+  data: { [key: string]: number };
 }
 
 const BarChart: React.FC<BarChartProps> = ({ data }) => {
+  // Validate data
+  if (!data || Object.keys(data).length === 0) {
+    return (
+      <div className="w-full h-full min-h-[400px] p-4 bg-white rounded-lg shadow-sm flex items-center justify-center">
+        <p className="text-gray-500">No data available to display</p>
+      </div>
+    );
+  }
+
   // New vibrant color palette
   const colors = [
     "#2196F3", // Bright Blue
@@ -33,7 +44,7 @@ const BarChart: React.FC<BarChartProps> = ({ data }) => {
     "#3F51B5", // Indigo
   ];
 
-  // Transform the simple data format to FusionCharts format
+  // Transform the data format to FusionCharts format
   const chartData = Object.entries(data).map(([label, value], index) => ({
     label,
     value,
@@ -78,25 +89,20 @@ const BarChart: React.FC<BarChartProps> = ({ data }) => {
         toolTipBgAlpha: "80",
         toolTipBorderRadius: "4",
         toolTipPadding: "8",
-        plotGradientColor: "", // Remove gradient
-        usePlotGradientColor: "0", // Disable gradient effect
-        // Add spacing between bars
-        plotSpacePercent: "50", // Space between bars (0-100)
-        // Improve label positioning and styling
-        labelDisplay: "ROTATE", // ROTATE, WRAP, STAGGER
-        slantLabel: "1", // Slant the labels for better readability
-        labelStep: "1", // Show all labels
+        plotSpacePercent: "50",
+        labelDisplay: "ROTATE",
+        slantLabel: "1",
+        labelStep: "1",
         rotateLabels: "1",
-        placeValuesInside: "0", // Place values outside the bars
+        placeValuesInside: "0",
         valueFontBold: "1",
         valueFontSize: "12",
-        xAxisNamePadding: "20", // Add padding to X-axis name
-        yAxisNamePadding: "20", // Add padding to Y-axis name
+        xAxisNamePadding: "20",
+        yAxisNamePadding: "20",
         xAxisNameFontSize: "14",
         yAxisNameFontSize: "14",
         xAxisNameFontBold: "1",
         yAxisNameFontBold: "1",
-        // Adjust margins for better spacing
         chartBottomMargin: "50",
         chartTopMargin: "20",
         chartLeftMargin: "20",
@@ -106,13 +112,21 @@ const BarChart: React.FC<BarChartProps> = ({ data }) => {
     },
   };
 
-  const Chart = ReactFusioncharts as any;
-
-  return (
-    <div className="w-full h-full min-h-[400px] p-4">
-      <Chart {...chartConfigs} />
-    </div>
-  );
+  try {
+    const Chart = ReactFusioncharts as any;
+    return (
+      <div className="w-full h-full min-h-[400px] p-4 bg-white rounded-lg shadow-sm">
+        <Chart {...chartConfigs} />
+      </div>
+    );
+  } catch (error) {
+    console.error("Error rendering chart:", error);
+    return (
+      <div className="w-full h-full min-h-[400px] p-4 bg-white rounded-lg shadow-sm flex items-center justify-center">
+        <p className="text-red-500">Error rendering chart</p>
+      </div>
+    );
+  }
 };
 
 export default BarChart;

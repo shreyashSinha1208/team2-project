@@ -6,6 +6,7 @@ import {
   setTimelineData,
   setListViewData,
   setQnAData,
+  setBarChartData,
 } from "../store/dataSlice"; // Import setTimelineData
 import { Inter } from "next/font/google";
 const inter = Inter({
@@ -137,20 +138,21 @@ Brazil: 78`);
         .filter(Boolean);
       dispatch(setItems(lines));
     } else if (template === "Timeline") {
-      // Handle Timeline template specifically
-      dispatch(setTimelineData(data)); // Dispatch to Redux for Timeline
+      dispatch(setTimelineData(data));
     } else if (template === "List") {
-      dispatch(setListViewData(data)); // Dispatch to Redux for List
+      dispatch(setListViewData(data));
     } else if (template === "Q&A") {
       const qnaLines = data
         .split("\n")
         .map((line) => line.trim())
         .filter(Boolean);
-      dispatch(setQnAData(qnaLines)); // Dispatch to Redux for Q&A
+      dispatch(setQnAData(qnaLines));
+    } else if (template === "Bar Chart") {
+      dispatch(setBarChartData(data));
+      setRawData(data);
     } else {
-      setRawData(data); // For other templates that still use rawData prop
+      setRawData(data);
     }
-    // Removed setActiveView("chart") as activeView is removed
   };
 
   // toggleSidebar remains for the main sidebar
