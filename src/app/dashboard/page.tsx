@@ -10,11 +10,11 @@ import {
   setPieChartData,
   setDoughnutChartData,
   setKnobChartData,
-} from "../store/dataSlice"; // Import setTimelineData
+} from "../store/dataSlice";
 import { Inter } from "next/font/google";
 const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-inter", // Optional for CSS variable usage
+  variable: "--font-inter", 
   display: "swap",
 });
 
@@ -297,8 +297,7 @@ Brazil: 78`);
     <div
       className={`flex flex-col md:flex-row h-screen bg-slate-100 {inter.className}`}
     >
-      {/* Left vertical nav bar - Desktop only */}
-      {/* This sidebar is distinct from your TemplateSidebar; it's a fixed app navigation */}
+     
       <div className="hidden md:flex flex-col items-center w-16 bg-slate-900 border-r border-slate-800 py-6 space-y-8 shadow-xl z-30">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br bg-[#0790E8] flex items-center justify-center shadow-lg">
           <Zap size={20} className="text-white" />
@@ -337,14 +336,6 @@ Brazil: 78`);
           {template}
         </div>
 
-        {/* Mobile View Toggle (Data/Chart) - REMOVED as TemplateSidebar handles tabs */}
-        {/* <button
-          onClick={() => setActiveView(activeView === "data" ? "chart" : "data")}
-          className={`px-3 py-2 rounded-lg bg-gradient-to-r ${colors.gradient} text-white text-sm flex items-center gap-1`}
-        >
-          {activeView === "data" ? <BarChart3 size={18} /> : <ListFilter size={18} />}
-          <span>{activeView === "data" ? "Chart" : "Data"}</span>
-        </button> */}
       </div>
 
       {/* Template Sidebar with animation */}
@@ -372,14 +363,7 @@ Brazil: 78`);
       {/* Main content area */}
       <div className="flex-1 flex flex-col overflow-hidden h-full">
         {" "}
-        {/* Changed to flex-col for desktop responsiveness */}
-        {/* Desktop Header */}
-        <div className="hidden md:flex w-full h-16 border-b border-slate-200 px-8 items-center justify-between bg-white shadow-sm z-10">
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
-          </div>
-        </div>
-        {/* Chart Visualization Section - Always visible */}
+       
         <div className="flex-1 flex flex-col md:flex-row p-4 gap-4 overflow-hidden">
           <motion.div
             className="flex-1 flex flex-col bg-white rounded-xl shadow-lg overflow-hidden relative border border-slate-200"
@@ -393,18 +377,7 @@ Brazil: 78`);
               damping: 20,
             }}
           >
-            {/* Toggle Data panel button (for desktop when data input is hidden) - REMOVED as sidebar handles visibility */}
-            {/* {!isDataInputVisible && mounted && isLargeScreen && (
-              <button
-                onClick={() => setIsDataInputVisible(true)}
-                className="absolute top-4 left-4 z-10 p-2 rounded-full bg-white shadow-md border border-slate-200 hover:bg-slate-50 transition-colors text-slate-600"
-                title="Show Data Input"
-              >
-                <PanelRight size={20} />
-              </button>
-            )} */}
-
-            {/* Chart Header */}
+           
             <div
               className={`bg-gradient-to-r ${colors.gradient} p-4 text-white rounded-t-xl flex justify-between items-center shadow-md`}
             >
@@ -431,9 +404,7 @@ Brazil: 78`);
                   <Wand2 size={16} /> Animate
                 </button>
 
-                {/* <button className="flex items-center gap-1.5 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg backdrop-blur-sm transition-colors text-sm font-medium">
-                  <Download size={16} /> Export
-                </button> */}
+             
               </div>
             </div>
 
