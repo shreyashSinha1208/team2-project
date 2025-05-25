@@ -11,6 +11,7 @@ import {
   setFlashcardData,
   setMindfullnessData,
   setBarChartData,
+  setPieChartData,
 } from "@/app/store/dataSlice"; // Import Redux actions
 import { setQnAData } from "@/app/store/dataSlice"; // Import Redux actions
 
@@ -270,18 +271,17 @@ Brazil: 78
 Only provide the raw data in the key: value format, with no introduction or explanation. Be precise and concise. Each key should be a category or item name, and each value should be a number between 0 and 100.`;
 
       case "Pie Chart":
-        return `You are a pie chart data generator. When given a topic, generate data in JSON format with labels and datasets. The data should be in the following format:
-{
-  "labels": ["Category1", "Category2", "Category3", ...],
-  "datasets": [{
-    "label": "Chart Title",
-    "data": [value1, value2, value3, ...],
-    "backgroundColor": ["rgba(255, 99, 132, 0.8)", "rgba(54, 162, 235, 0.8)", "rgba(255, 206, 86, 0.8)", ...],
-    "borderColor": ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)", "rgba(255, 206, 86, 1)", ...],
-    "borderWidth": 1
-  }]
-}
-Only provide the raw JSON data, with no introduction or explanation. Be precise and concise.`;
+        return `You are a pie chart data generator. When given a topic or category, generate data in the format "key: value" with each pair on a new line. The data should be realistic and meaningful for the given topic, and all values should add up to 100 (representing percentages). For example:
+
+Samsung: 22.1
+Apple: 17.1
+Huawei: 18.2
+Xiaomi: 9.3
+Oppo: 7.7
+Vivo: 6.4
+Others: 19.2
+
+Only provide the raw data in the key: value format, with no introduction or explanation. Be precise and concise. Each key should be a category name, and each value should be a number representing its percentage of the total (all values should sum to 100).`;
 
       case "Timeline":
         return `You are a historical timeline data generator. When given a historical topic, generate a timeline of key events in the format "year:event" with each event on a new line. Focus on the most significant events, and provide around 10-20 entries for a comprehensive but manageable timeline. Only provide the raw data in the year:event format, with no introduction or explanation. Ensure all leading spaces are trimmed. Be precise and concise. Example format:
@@ -487,6 +487,8 @@ Progressive Relaxation:Tense and release each muscle group, starting from your f
           dispatch(setMindfullnessData(aiReply));
         } else if (selected === "Bar Chart") {
           dispatch(setBarChartData(aiReply));
+        } else if (selected === "Pie Chart") {
+          dispatch(setPieChartData(aiReply));
         }
 
         // Update manual input text with AI response
@@ -502,6 +504,7 @@ Progressive Relaxation:Tense and release each muscle group, starting from your f
             "Flashcard",
             "Mindfullness",
             "Bar Chart",
+            "Pie Chart",
           ].includes(selected) &&
           aiReply &&
           onDataGenerated

@@ -8,6 +8,7 @@ interface SWOTState {
   mindfullnessData: string;
   qnaData: string[]; // Q&A data
   barChartData: string; // Bar Chart data
+  pieChartData: string; // Pie Chart data
 }
 
 const initialState: SWOTState = {
@@ -38,6 +39,13 @@ Nigeria: 50
 South_Africa: 72
 Germany: 93
 Brazil: 78`,
+  pieChartData: `Samsung: 22.1
+Apple: 17.1
+Huawei: 18.2
+Xiaomi: 9.3
+Oppo: 7.7
+Vivo: 6.4
+Others: 19.2`,
 };
 
 const swotSlice = createSlice({
@@ -67,6 +75,9 @@ const swotSlice = createSlice({
     },
     setBarChartData(state, action: PayloadAction<string>) {
       state.barChartData = action.payload;
+    },
+    setPieChartData(state, action: PayloadAction<string>) {
+      state.pieChartData = action.payload;
     },
     // QnA Actions
     setQnAData(state, action: PayloadAction<string[]>) {
@@ -98,6 +109,7 @@ export const {
   setFlashcardData,
   setMindfullnessData,
   setBarChartData,
+  setPieChartData,
   setQnAData,
   addQnAItem,
   editQnAItem,
