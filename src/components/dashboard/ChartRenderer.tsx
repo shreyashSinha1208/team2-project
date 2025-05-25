@@ -21,6 +21,10 @@ const QnAView = dynamic(() => import("../charts/QnAView"), { ssr: false });
 const TimelineGraph = dynamic(() => import("../charts/TimelineGraph"), {
   ssr: false,
 });
+// const SwotView = dynamic(() => import("../charts/SwotView"), {ssr: false,});
+const FlashcardView = dynamic(() => import("../charts/FlashcardView"), {ssr: false,});
+const MindfullnesscardView = dynamic(() => import("../charts/MindfullnesscardView"), {ssr: false,});
+
 const SwotView = dynamic(() => import("../charts/SwotView"), { ssr: false });
 const DoughnutChart = dynamic(() => import("../charts/DoughnutChart"), {
   ssr: false,
@@ -138,6 +142,11 @@ export default function ChartRenderer({ template, rawData }: Props) {
     case "Swot":
       return <SwotView />;
 
+    case "Flashcard":
+      return <FlashcardView />;
+
+    case "Mindfullness":
+      return <MindfullnesscardView />;
     case "Doughnut Chart":
       return json ? (
         <DoughnutChart data={json as ChartJsData} />
