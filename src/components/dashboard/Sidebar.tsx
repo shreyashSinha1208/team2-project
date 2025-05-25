@@ -13,6 +13,7 @@ import {
   setBarChartData,
   setPieChartData,
   setDoughnutChartData,
+  setKnobChartData,
 } from "@/app/store/dataSlice"; // Import Redux actions
 import { setQnAData } from "@/app/store/dataSlice"; // Import Redux actions
 
@@ -394,18 +395,15 @@ Only provide the raw data in the key: value format, with no introduction or expl
 Only provide the raw JSON data, with no introduction or explanation. Be precise and concise.`;
 
       case "Knob Chart":
-        return `You are a knob chart data generator. When given a topic, generate data in JSON format with labels and datasets. The data should be in the following format:
-{
-  "labels": ["Category1", "Category2", "Category3", ...],
-  "datasets": [{
-    "label": "Chart Title",
-    "data": [value1, value2, value3, ...],
-    "backgroundColor": ["rgba(255, 99, 132, 0.8)", "rgba(54, 162, 235, 0.8)", "rgba(255, 206, 86, 0.8)", ...],
-    "borderColor": ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)", "rgba(255, 206, 86, 1)", ...],
-    "borderWidth": 1
-  }]
-}
-Only provide the raw JSON data, with no introduction or explanation. Be precise and concise.`;
+        return `You are a knob chart data generator. When given a topic or category, generate data in the format "key: value" with each pair on a new line. The data should be realistic and meaningful for the given topic, with values between 0 and 100 representing percentages or progress. For example:
+
+Project_Progress: 75
+Battery_Level: 85
+Storage_Used: 60
+CPU_Usage: 45
+Memory_Usage: 70
+
+Only provide the raw data in the key: value format, with no introduction or explanation. Be precise and concise. Each key should be a metric or indicator name, and each value should be a number between 0 and 100 representing a percentage or progress value.`;
 
       case "Flashcard":
         return `You are a flashcard generator. When given a topic, generate a series of flashcards in the format "front:back" with each card on a new line. The front should contain a concise question or concept, and the back should contain a clear, brief explanation. Focus on key concepts and provide 5-10 cards. Only provide the raw data in the front:back format, with no introduction or explanation. Ensure all leading spaces are trimmed. Be precise and concise. Example format:
@@ -490,6 +488,8 @@ Progressive Relaxation:Tense and release each muscle group, starting from your f
           dispatch(setPieChartData(aiReply));
         } else if (selected === "Doughnut Chart") {
           dispatch(setDoughnutChartData(aiReply));
+        } else if (selected === "Knob Chart") {
+          dispatch(setKnobChartData(aiReply));
         }
 
         // Update manual input text with AI response
@@ -507,6 +507,7 @@ Progressive Relaxation:Tense and release each muscle group, starting from your f
             "Bar Chart",
             "Pie Chart",
             "Doughnut Chart",
+            "Knob Chart",
           ].includes(selected) &&
           aiReply &&
           onDataGenerated

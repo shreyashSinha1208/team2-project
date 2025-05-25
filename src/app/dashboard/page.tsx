@@ -9,6 +9,7 @@ import {
   setBarChartData,
   setPieChartData,
   setDoughnutChartData,
+  setKnobChartData,
 } from "../store/dataSlice"; // Import setTimelineData
 import { Inter } from "next/font/google";
 const inter = Inter({
@@ -157,6 +158,9 @@ Brazil: 78`);
       setRawData(data);
     } else if (template === "Doughnut Chart") {
       dispatch(setDoughnutChartData(data));
+      setRawData(data);
+    } else if (template === "Knob Chart") {
+      dispatch(setKnobChartData(data));
       setRawData(data);
     } else {
       setRawData(data);
