@@ -110,7 +110,7 @@ const KnobChart: React.FC<KnobChartProps> = ({ data }) => {
   return (
     <div className="w-full p-2">
       <h2 className="text-xl font-semibold text-center mb-4 text-[#800026]">
-        Internet Penetration Rates by Country
+        Data Visualization
       </h2>
       <div className="flex flex-wrap -mx-1">{charts}</div>
     </div>
