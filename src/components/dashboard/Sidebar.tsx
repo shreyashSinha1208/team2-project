@@ -12,6 +12,7 @@ import {
   setMindfullnessData,
   setBarChartData,
   setPieChartData,
+  setDoughnutChartData,
 } from "@/app/store/dataSlice"; // Import Redux actions
 import { setQnAData } from "@/app/store/dataSlice"; // Import Redux actions
 
@@ -360,18 +361,16 @@ Cleanup
 Shut down all equipment safely and return materials to storage.`;
 
       case "Doughnut Chart":
-        return `You are a doughnut chart data generator. When given a topic, generate data in JSON format with labels and datasets. The data should be in the following format:
-{
-  "labels": ["Category1", "Category2", "Category3", ...],
-  "datasets": [{
-    "label": "Chart Title",
-    "data": [value1, value2, value3, ...],
-    "backgroundColor": ["rgba(255, 99, 132, 0.8)", "rgba(54, 162, 235, 0.8)", "rgba(255, 206, 86, 0.8)", ...],
-    "borderColor": ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)", "rgba(255, 206, 86, 1)", ...],
-    "borderWidth": 1
-  }]
-}
-Only provide the raw JSON data, with no introduction or explanation. Be precise and concise.`;
+        return `You are a doughnut chart data generator. When given a topic or category, generate data in the format "key: value" with each pair on a new line. The data should be realistic and meaningful for the given topic, and all values should add up to 100 (representing percentages). For example:
+
+Chrome: 64.5
+Safari: 18.2
+Firefox: 3.4
+Edge: 3.2
+Opera: 2.1
+Others: 8.6
+
+Only provide the raw data in the key: value format, with no introduction or explanation. Be precise and concise. Each key should be a category name, and each value should be a number representing its percentage of the total (all values should sum to 100).`;
 
       case "Line Chart":
         return `You are a line chart data generator. When given a topic, generate data in JSON format with labels and datasets. The data should be in the following format:
@@ -489,6 +488,8 @@ Progressive Relaxation:Tense and release each muscle group, starting from your f
           dispatch(setBarChartData(aiReply));
         } else if (selected === "Pie Chart") {
           dispatch(setPieChartData(aiReply));
+        } else if (selected === "Doughnut Chart") {
+          dispatch(setDoughnutChartData(aiReply));
         }
 
         // Update manual input text with AI response
@@ -505,6 +506,7 @@ Progressive Relaxation:Tense and release each muscle group, starting from your f
             "Mindfullness",
             "Bar Chart",
             "Pie Chart",
+            "Doughnut Chart",
           ].includes(selected) &&
           aiReply &&
           onDataGenerated

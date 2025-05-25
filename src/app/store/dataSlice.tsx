@@ -9,6 +9,7 @@ interface SWOTState {
   qnaData: string[]; // Q&A data
   barChartData: string; // Bar Chart data
   pieChartData: string; // Pie Chart data
+  doughnutChartData: string; // Doughnut Chart data
 }
 
 const initialState: SWOTState = {
@@ -46,6 +47,12 @@ Xiaomi: 9.3
 Oppo: 7.7
 Vivo: 6.4
 Others: 19.2`,
+  doughnutChartData: `Chrome: 64.5
+Safari: 18.2
+Firefox: 3.4
+Edge: 3.2
+Opera: 2.1
+Others: 8.6`,
 };
 
 const swotSlice = createSlice({
@@ -79,6 +86,9 @@ const swotSlice = createSlice({
     setPieChartData(state, action: PayloadAction<string>) {
       state.pieChartData = action.payload;
     },
+    setDoughnutChartData(state, action: PayloadAction<string>) {
+      state.doughnutChartData = action.payload;
+    },
     // QnA Actions
     setQnAData(state, action: PayloadAction<string[]>) {
       state.qnaData = action.payload;
@@ -110,6 +120,7 @@ export const {
   setMindfullnessData,
   setBarChartData,
   setPieChartData,
+  setDoughnutChartData,
   setQnAData,
   addQnAItem,
   editQnAItem,
